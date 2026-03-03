@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.1] — 2026-03-03
+
+### Features
+- New **Maintenance** section in project settings dialog (separate from Actions)
+  - **Repair database** — re-sync SQLite with JSONL (auto-backup before repair)
+  - **Fix CLI permissions** — restore +x on the pair binary (resolves symlink)
+  - Re-initialize moved to Maintenance section (most destructive = last)
+- Dynamic window title — shows "PaiR — ProjectName" when a project is selected
+- Parse `.pair/config.yaml` for `issue-prefix` (was hardcoded to defaults)
+- Toast notifications on all maintenance actions (success/error)
+
 ## [0.3.0] — 2026-03-02
 
 ### Features
