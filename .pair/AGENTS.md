@@ -1,0 +1,191 @@
+# AGENTS.md — PaiR
+
+This project uses `pair` for issue tracking. Issues are stored locally in SQLite (`.pair/pair.db`).
+
+## CLI Binary
+
+`pair` — if not in PATH, check the project's build output.
+
+## Global Flags
+
+| Flag | Description |
+|------|-------------|
+| `-C <path>` / `--project <path>` | Project directory (default: current directory) |
+| `--json` | Output as JSON |
+| `--actor <name>` | Actor name for authoring (default: git user.name) |
+
+## Commands
+
+### `init` — Initialize tracker
+
+```bash
+pair init
+```
+
+### `list` — List issues
+
+```bash
+pair list                        # Open issues (default)
+pair list -s open                # Filter by status
+pair list -s in_progress
+pair list -s closed
+pair list -a                     # All issues (shorthand for -s all)
+pair list -t bug                 # Filter by type (task, bug, feature, epic)
+pair list -p p0                  # Filter by priority (p0, p1, p2, p3)
+pair list --assignee "Name"      # Filter by assignee
+pair list --limit 10             # Limit results
+pair list --json                 # JSON output
+```
+
+### `show <id>` — Show issue details
+
+Displays full issue detail including children, comments, labels, dependencies.
+
+```bash
+pair show <id>
+pair show <id> --json
+```
+
+### `create <title>` — Create a new issue
+
+```bash
+pair create "Fix login bug"
+
+pair create "Add dark mode" \
+  -d "Description here" \
+  -t feature \
+  -p p1 \
+  --assignee "Name" \
+  -l "ui,theme" \
+  --parent <parent-id> \
+  --estimate 120 \
+  --design "Design notes" \
+  --acceptance "Acceptance criteria" \
+  --notes "Additional notes" \
+  --external-ref "https://example.com/issue/42" \
+  --spec-id "SPEC-001"
+```
+
+| Flag | Short | Description |
+|------|-------|-------------|
+| `--description` | `-d` | Issue body/description |
+| `--type` | `-t` | Issue type: `task`, `bug`, `feature`, `epic` |
+| `--priority` | `-p` | Priority: `p0`, `p1`, `p2`, `p3` |
+| `--assignee` | | Assignee name |
+| `--labels` | `-l` | Comma-separated labels |
+| `--parent` | | Parent issue ID (for sub-tasks) |
+| `--estimate` | | Estimate in minutes |
+| `--design` | | Design notes |
+| `--acceptance` | | Acceptance criteria |
+| `--notes` | | Additional notes |
+| `--external-ref` | | External reference (URL, Redmine ID) |
+| `--spec-id` | | Spec ID |
+
+### `update <id>` — Update an issue
+
+```bash
+pair update <id> -s in_progress
+pair update <id> --title "New title"
+pair update <id> -d "Updated description"
+pair update <id> -t bug -p p0
+pair update <id> --assignee "Name"
+pair update <id> --assignee ""          # Clear assignee
+pair update <id> -l "ui,urgent"         # Replace all labels
+pair update <id> --parent <parent-id>
+pair update <id> --parent ""             # Clear parent
+pair update <id> --estimate 60
+pair update <id> --estimate 0            # Clear estimate
+```
+
+Use empty string `""` to clear optional fields, `0` to clear estimate.
+
+### `close <id>` — Close an issue
+
+```bash
+pair close <id>
+```
+
+### `delete <id>` — Delete an issue
+
+```bash
+pair delete <id>              # Soft delete
+pair delete <id> --hard       # Permanent removal
+```
+
+### `search <query>` — Full-text search
+
+```bash
+pair search "login bug"
+pair search "query" --limit 10
+```
+
+### `ready` — List unblocked open issues
+
+```bash
+pair ready
+```
+
+### `reorder` — Reorder a child issue within its parent
+
+```bash
+pair reorder <parent-id> <child-id> <new-position>
+```
+
+Position is 1-based. Re-numbers all siblings sequentially.
+
+### `export` — Force re-export database to JSONL
+
+```bash
+pair export
+```
+
+Useful after schema migrations to update the JSONL format (e.g., `blocked_by`, `position` fields).
+
+### `import <path>` — Import issues from a JSONL file
+
+```bash
+pair import path/to/issues.jsonl
+```
+
+Merge strategy: last-write-wins by `updated_at`. Comments use append-only merge.
+
+### `comments` — Manage comments
+
+```bash
+pair comments add <id> "Comment body"
+pair comments delete <comment-id>
+```
+
+### `label` — Manage labels
+
+```bash
+pair label add <id> "label-name"
+pair label remove <id> "label-name"
+```
+
+### `dep` — Manage dependencies
+
+```bash
+pair dep add <id> <blocker-id>              # blocker blocks id
+pair dep add <id> <blocker-id> --type blocks
+pair dep remove <id> <other-id>
+pair dep tree <id>                          # Recursive dependency tree
+pair dep list <id>                          # Direct dependencies only
+```
+
+### `migrate` — Migrate from .beads to .pair
+
+```bash
+pair migrate                    # Import issues from .beads/ into .pair/
+pair migrate --force            # Overwrite existing .pair/ data
+```
+
+## Workflow: Work on an issue
+
+```bash
+pair list -s open              # Pick an issue
+pair update <id> -s in_progress
+# ... do the work ...
+pair comments add <id> "Done: implemented the feature"
+pair close <id>
+```
