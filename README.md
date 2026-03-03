@@ -20,6 +20,23 @@ PaiR uses the original Beads file structure (SQLite + JSONL). For existing proje
 
 - **`bd`** (Go) projects up to version 0.49.x (before the Dolt migration)
 - **`br`** ([beads_rust](https://github.com/Dicklesworthstone/beads_rust)) projects up to version 0.1.20+
+
+## For AI agents
+
+PaiR is designed to be driven by AI coding assistants (Claude Code, Cursor, Copilot, etc.). Projects can be initialized from the desktop app (just add a folder) or via `pair init` from the terminal. Either way, an `AGENTS.md` file is generated in `.pair/` with the full CLI reference — commands, flags, and workflows.
+
+Agents can use the CLI to manage the full issue lifecycle:
+
+```bash
+pair list -s open              # Find available work
+pair update <id> -s in_progress
+# ... do the work ...
+pair comments add <id> "Done: implemented the feature"
+pair close <id>
+```
+
+See [`.pair/AGENTS.md`](.pair/AGENTS.md) for the complete reference.
+
 ## Links
 
 - [Changelog](https://github.com/w3dev33/pair-dist/blob/main/CHANGELOG.md)
