@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.3.2] — 2026-03-03
+
+### Features
+- **Print Markdown** — print button + `Cmd+P` in Markdown preview modal (uses native print dialog via Tauri WebView)
+- **Custom relations CLI** — `pair relate <id1> <id2> --type <type>` and `pair unrelate` for non-blocking relations (relates-to, duplicates, supersedes, etc.)
+- Custom relations exported/imported in JSONL (`relations` field) — survives sync round-trips
+
+### Fixes
+- Fix dynamic window title — add missing `core:window:allow-set-title` permission
+- Fix print in Tauri WebView — rewrite from iframe (blocked) to permanent `@media print` styles
+- Print page breaks: `break-inside: avoid` on code blocks, tables, headings
+
+### Docs
+- Rebrand all docs from Beads to PaiR
+- Rewrite README for public distribution + sync automation
+- Document `pair relate` / `pair unrelate` in AGENTS.md
+
 ## [0.3.1] — 2026-03-03
 
 ### Features
