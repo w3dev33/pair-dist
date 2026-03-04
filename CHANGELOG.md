@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.3.4] — 2026-03-04
+
+### Features
+- **`pair attach` CLI command** — attach files to issues from the command line, with real-time attachment refresh in the app
+
+### Fixes
+- Fix toast notification contrast in light theme
+- Rename release artifacts + disable unavailable downloads on website
+
+## [0.3.3] — 2026-03-04
+
+### Features
+- **Claude Events: native hook integration** — `pair notify --hook <hook_type>` reads JSON from stdin, classifies events (significant vs verbose), and forwards to the app. Replaces the bash/jq bridge script.
+- **`pair notify` CLI** — new `--hook` flag for Claude Code hooks, plus existing manual mode (`-t`/`-m`) preserved for backward compatibility
+- Self-call detection: Bash commands starting with `pair notify` are automatically skipped to prevent echo loops
+
+### Docs
+- Mark `scripts/claude-hook.sh` as legacy (kept as reference)
+- Update AGENTS.md with `--hook` mode documentation and simplified Claude Code config
+
 ## [0.3.2] — 2026-03-03
 
 ### Features

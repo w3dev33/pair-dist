@@ -163,6 +163,18 @@ pair label add <id> "label-name"
 pair label remove <id> "label-name"
 ```
 
+### `attach` — Attach files to an issue
+
+```bash
+pair attach <id> screenshot.png              # Attach one file
+pair attach <id> img1.png notes.md           # Attach multiple files
+pair attach <id> "file with spaces.png"      # Quoted paths
+```
+
+Supported: images (png, jpg, jpeg, gif, webp, bmp, svg, ico, tiff) and markdown (md, markdown).
+Files are copied to `.pair/attachments/{short-id}/`, sanitized (kebab-case, no accents), with duplicate handling.
+Emits a push notification so the app refreshes the attachment preview in real-time.
+
 ### `dep` — Manage dependencies
 
 ```bash
