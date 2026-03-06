@@ -242,6 +242,12 @@ To connect Claude Code to PaiR, add hooks to `.claude/settings.json` in your pro
 }
 ```
 
+**Important:** Claude Code hooks run in a minimal shell where `PATH` may be incomplete.
+Always use the absolute path to the `pair` binary in hook commands (run `which pair` to find it):
+
+- **macOS:** `/usr/local/bin/pair` (or your symlink location)
+- **Linux:** `/usr/bin/pair`
+
 This enables real-time AI activity tracking in the PaiR app: per-project activity LED,
 AI events panel, and session focus (switch to the editor window where AI is working).
 

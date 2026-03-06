@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.4.3] — 2026-03-06
+
+### Features
+- Add `pair --version` / `-V` to CLI (clap version flag)
+
+### Fixes
+- Fix CLI binary missing execute permission in Linux `.deb` package
+- Fix log file path for Linux (`~/.local/share/com.pair.app/logs/pair.log`)
+- Rename log file from `beads.log` to `pair.log`
+- Fix push socket stale detection (non-blocking connect check)
+- Set socket permissions to world-writable so CLI can always connect
+- Auto-fix CLI permissions on app startup (Linux `.deb` workaround)
+
+### Docs
+- README: add "Why PaiR?" section, mark AI features as experimental (macOS only), update platform availability (Windows coming soon)
+- Claude Code hooks: recommend absolute path to `pair` binary on all platforms
+- Add Linux-specific note to AGENTS.md template
+
 ## [0.4.2] — 2026-03-06
 
 ### Docs
