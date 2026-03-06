@@ -69,6 +69,10 @@ See [`.pair/AGENTS.md`](.pair/AGENTS.md) for the complete reference.
 - [Beads (original project)](https://github.com/steveyegge/beads)
 - [beads_rust](https://github.com/Dicklesworthstone/beads_rust)
 
+## Disclaimer
+
+PaiR is free to use. The software is provided as-is, with no warranty. Your data stays local — issues are stored in your project directory — but as with any tool, regular backups are your responsibility. See [LICENSE](LICENSE) for details.
+
 ## License
 
 [MIT](LICENSE) — Laurent Chapin
