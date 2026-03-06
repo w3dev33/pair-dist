@@ -203,6 +203,48 @@ pair migrate                    # Import issues from .beads/ into .pair/
 pair migrate --force            # Overwrite existing .pair/ data
 ```
 
+### `notify` — Send notifications to the PaiR app
+
+```bash
+pair notify --hook <hook_type>              # Claude Code hook mode (reads JSON from stdin)
+pair notify -t agent_start -m "Starting"    # Manual mode
+pair notify -t test -m "Hello"              # Test notification
+```
+
+| Flag | Description |
+|------|-------------|
+| `--hook <type>` | Claude Code hook mode: reads JSON payload from stdin, classifies and forwards |
+| `-t, --type` | Notification type (idle, permission, agent_start, agent_stop, test, etc.) |
+| `-m, --message` | Message content |
+| `--session` | Session ID (from Claude Code hook payload) |
+| `--actor` | Actor name (default: git user.name) |
+
+## Claude Code hooks configuration
+
+To connect Claude Code to PaiR, add hooks to `.claude/settings.json` in your project:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      { "matcher": "", "hooks": [{ "type": "command", "command": "pair notify --hook PreToolUse" }] }
+    ],
+    "PostToolUse": [
+      { "matcher": "", "hooks": [{ "type": "command", "command": "pair notify --hook PostToolUse" }] }
+    ],
+    "Notification": [
+      { "matcher": "", "hooks": [{ "type": "command", "command": "pair notify --hook Notification" }] }
+    ],
+    "Stop": [
+      { "matcher": "", "hooks": [{ "type": "command", "command": "pair notify --hook Stop" }] }
+    ]
+  }
+}
+```
+
+This enables real-time AI activity tracking in the PaiR app: per-project activity LED,
+AI events panel, and session focus (switch to the editor window where AI is working).
+
 ## Workflow: Work on an issue
 
 ```bash
