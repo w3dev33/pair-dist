@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.1] — 2026-03-06
+
+### Fixes
+- Fix stale data when external process (CLI script) modifies the database — invalidate cached SQLite connection on mtime change
+- Add `relate`/`unrelate` commands to AGENTS.md template
+
 ## [0.4.0] — 2026-03-06
 
 ### Features

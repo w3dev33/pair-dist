@@ -186,6 +186,16 @@ pair dep tree <id>                          # Recursive dependency tree
 pair dep list <id>                          # Direct dependencies only
 ```
 
+### `relate` / `unrelate` — Manage relations between issues
+
+Relations are non-blocking links between issues (unlike `dep` which is for blockers).
+
+```bash
+pair relate <id1> <id2>                        # Default type: relates-to
+pair relate <id1> <id2> --type relates-to      # Explicit type
+pair unrelate <id1> <id2>                      # Remove relation
+```
+
 ### `migrate` — Migrate from .beads to .pair
 
 ```bash
