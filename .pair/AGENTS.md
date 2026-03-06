@@ -173,6 +173,7 @@ pair attach <id> "file with spaces.png"      # Quoted paths
 
 Supported: images (png, jpg, jpeg, gif, webp, bmp, svg, ico, tiff) and markdown (md, markdown).
 Files are copied to `.pair/attachments/{short-id}/`, sanitized (kebab-case, no accents), with duplicate handling.
+The app returns **absolute paths** for attachments (it manages multiple projects simultaneously, so paths must be resolvable regardless of the current working directory).
 Emits a push notification so the app refreshes the attachment preview in real-time.
 
 ### `dep` — Manage dependencies

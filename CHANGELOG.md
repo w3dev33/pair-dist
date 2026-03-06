@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.4.0] — 2026-03-06
+
+### Features
+- **AI session tracking** — Associate AI session PID with projects via push notifications. Walk PPID chain to detect AI CLI (Claude, Cursor, Codex) and editor (Zed, VS Code)
+- **Per-project activity LED** — Each project line shows a LED that blinks green on AI notifications (replaces folder icon)
+- **Focus AI session window** — Click the focus button or press ⌘⇧F to switch to the editor window where AI is working (uses editor CLI for precise window targeting)
+- **AI Events panel** — Renamed from "Claude Events" to "AI Events". Shows AI name badge (claude/cursor/codex) per event. Toggle with ⌘⇧A
+- **Keyboard shortcuts** — ⌘⇧A (AI panel), ⌘⇧F (focus AI session) added to app menu
+- **Blocked badge** — Visual badge for blocked issues in the issue list
+- **README** — Added Features section, merged Background & Compatibility
+
+### Improvements
+- AI name (`ai_name`) and editor name (`editor`) fields added to PushEvent for richer notifications
+- Focus window uses 3 strategies: editor CLI from notification → detect editor from PID tree → AppleScript fallback
+- Session focus button uses neutral gray style (white when project selected)
+
 ## [0.3.4] — 2026-03-04
 
 ### Features
