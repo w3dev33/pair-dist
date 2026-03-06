@@ -40,7 +40,7 @@ The `pair` CLI is bundled with the application and a symlink is created automati
 
 PaiR is inspired by [Beads](https://github.com/steveyegge/beads), the AI-native issue tracker created by Steve Yegge, which stores issues directly in the codebase using a SQLite + JSONL structure. Our first take was [Beads Task-Issue Tracker](https://github.com/w3dev33/beads-task-issue-tracker), a desktop app built as a frontend for the existing Beads CLIs (`bd`, `br`). But as those CLIs evolved in diverging directions — Dolt migration, server mode, breaking changes — depending on external tools became a liability. PaiR was built from scratch with its own CLI, its own schema, and its own features to move at its own pace.
 
-For existing Beads projects, the app handles migration automatically:
+For existing Beads projects, the app handles migration automatically. The migration is **non-destructive** — your `.beads/` directory is left untouched. PaiR creates its own `.pair/` directory alongside it, so you can try PaiR without any risk to your existing data.
 
 - **`bd`** (Go) projects up to version 0.49.x (before the Dolt migration)
 - **`br`** ([beads_rust](https://github.com/Dicklesworthstone/beads_rust)) projects up to version 0.1.20+
