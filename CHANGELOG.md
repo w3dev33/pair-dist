@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.4.4] — 2026-03-07
+
+### Features
+- **Project pinning** — Pin/unpin projects in sidebar, toggle "pinned only" filter to focus on starred projects. Drag-and-drop and sort hidden when filtered
+- **AI panel: brand icons** — Per-event SVG icons for Claude, Cursor, Codex, Gemini, Vibe (+ generic fallback)
+- **AI panel: project name** — Display project name (last path segment) after AI icon
+- **AI panel: Copy button** — Copy filtered events to clipboard as text
+- **AI panel: cost & tokens on Stop** — Show total cost and token counts when AI session ends
+- **AI panel: tool error detection** — Highlight failed tool calls in red via `tool_error` event type
+- **AI panel: tool_use_id via meta** — Pass tool_use_id on all tool events for future duration tracking
+- **SubagentStop hook** — Capture agent completion events (`agent_stop` in AI panel)
+- **PreCompact hook** — Capture context compaction events (`compact` in AI panel)
+- **`--ai-name` flag** — `pair notify --ai-name claude` for testing AI icons without actual AI process
+
+### Improvements
+- Throttle activity LED re-renders (200ms) to reduce DOM updates
+- Increase AI panel MAX_EVENTS from 200 to 500
+- Dual-theme colors for all event types (light + dark mode)
+- Zoom support for AI and Debug panels (`.zoomable-panel`)
+- Soften verbose event opacity (60% → 80%)
+- Expand AI detection: add Gemini and Vibe to PPID chain walker
+
+### Docs
+- Add disclaimer section to README
+- Clarify non-destructive migration in README
+- Add Features section and improve hero layout on website
+
 ## [0.4.3] — 2026-03-06
 
 ### Features

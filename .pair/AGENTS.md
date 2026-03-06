@@ -237,6 +237,12 @@ To connect Claude Code to PaiR, add hooks to `.claude/settings.json` in your pro
     ],
     "Stop": [
       { "matcher": "", "hooks": [{ "type": "command", "command": "pair notify --hook Stop" }] }
+    ],
+    "SubagentStop": [
+      { "matcher": "", "hooks": [{ "type": "command", "command": "pair notify --hook SubagentStop" }] }
+    ],
+    "PreCompact": [
+      { "matcher": "", "hooks": [{ "type": "command", "command": "pair notify --hook PreCompact" }] }
     ]
   }
 }
