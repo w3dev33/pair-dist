@@ -16,9 +16,7 @@ The name says it all: **PaiR** — the human and the AI, working side by side.
 
 ## Installation
 
-Download PaiR for macOS and Linux: **[pair.w3dev.fr](https://pair.w3dev.fr)**
-
-> Windows support is coming soon — we're currently limited by CI build quotas but it's on the roadmap.
+Download PaiR for macOS, Linux and Windows: **[pair.w3dev.fr](https://pair.w3dev.fr)**
 
 The `pair` CLI is bundled with the application and a symlink is created automatically during installation, making it available from any terminal.
 
@@ -34,7 +32,7 @@ The `pair` CLI is bundled with the application and a symlink is created automati
 - **Attachments** — Attach images and markdown files to issues, previewed directly in the app
 - **Full-text search** — FTS5-powered search across titles, descriptions, and notes
 - **Dark & light themes** — Automatic theme detection with manual override
-- **Cross-platform** — macOS, Linux (Windows coming soon)
+- **Cross-platform** — macOS, Linux, Windows
 
 ## Background & Compatibility
 
