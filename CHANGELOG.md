@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.5.0] — 2026-03-07
+
+### Features
+- **Collapsible sections** — Issue list organized into In Progress, Pinned, and Current sections with collapsible headers
+- **AI panel: unknown project/agent detection** — Flag events from unrecognized projects or AI agents
+
+### Improvements
+- Compact header layout and refined table typography
+- Harmonized primary color and simplified neon default theme
+- Epic borders restored with child in_progress group promotion
+- Centered KPI card content, neutral label badges
+- Backend split into command modules for maintainability
+- Frontend refactoring: extracted reusable utils, composables, and badge configs
+- Linux build script now produces both amd64 and arm64
+
+### Tests
+- Added tests for partition helpers, toggle/enrich utilities, and short ID generation
+
 ## [0.4.4] — 2026-03-07
 
 ### Features
