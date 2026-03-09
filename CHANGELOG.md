@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.7.0] — 2026-03-09
+
+### Features
+- **Embedded help documentation** — 10-page help system accessible via `?` shortcut or Help menu, with table of contents navigation, cross-page search, and print support
+- **Clickable AI toast notifications** — Click on an AI notification toast to focus the agent's session window (macOS only)
+
+### Improvements
+- **Help viewer UX** — Wider dialog, resizable TOC sidebar, scroll spy, arrow key navigation between pages and sections
+- **Hidden internal statuses** — Internal statuses (pinned, hooked) no longer appear in filters and edit form
+
+### Fixes
+- **Mute icon zoom** — Mute icon no longer scales disproportionately when zooming the interface
+- **Help viewer overflow** — Content no longer overflows on narrow windows
+- **Website screenshot** — Website now uses the most recent screenshot by date instead of a version-based path that could break on patch releases
+
+### Documentation
+- Why PaiR? — Project philosophy and manifesto
+- Getting Started, Dashboard, Issue Details, Issue Workflow
+- AI Agent Hooks, Sync & Conflicts, CLI Reference
+- Settings (global + per-project), Keyboard Shortcuts
+
 ## [0.6.1] — 2026-03-09
 
 ### Features
