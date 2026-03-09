@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.6.1] — 2026-03-09
+
+### Features
+- **AI agent hooks settings** — Configure AI agent hooks (Claude Code, Cursor, Codex) directly from the global settings page
+
+### Fixes
+- **Notification sound fallback** — Fall back to global sound preset when a project has no notification config
+- **Linux audio crash** — Prevent audio playback error from blocking toast notifications on Linux
+
 ## [0.6.0] — 2026-03-09
 
 ### Features
