@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.6.0] — 2026-03-09
+
+### Features
+- **AI sound notifications** — Per-project sound alerts when AI agents need attention, with 5 sound presets (Bell, Double beep, Rising, Soft chime, Alert), per-project volume override, and global mute toggle in header
+
+### Improvements
+- **Centralized localStorage** — All keys managed through `storage-keys.ts` with active registries and automatic cleanup of stale keys
+- **Non-destructive storage migration** — `beads:` → `pair:` key migration at boot, old keys preserved for backward compatibility
+- **Path normalization** — `hashPath()` now strips trailing slashes, fixing per-project settings mismatches
+- **Legacy rename** — `useBeadsPath` → `useCliPath` across the entire codebase
+- Cargo cache added to all CI builds (Windows, macOS, Linux)
+
+### Tests
+- Added 21 tests for hash normalization, storage key registry, and migration logic
+
 ## [0.5.0] — 2026-03-07
 
 ### Features
