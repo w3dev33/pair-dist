@@ -1,5 +1,7 @@
 ![PaiR](assets/logo-dark.png)
 
+[![Visit Website](https://img.shields.io/badge/Visit_Website-pair.w3dev.fr-4a90d9?style=for-the-badge&logo=globe&logoColor=white)](https://pair.w3dev.fr)
+
 A lightweight desktop application for managing tasks and issues directly inside your codebase.
 
 PaiR ships with its own CLI (`pair`) — no external tool to install. The CLI manages issues across multiple independent projects, and the application aggregates them all in a single window, updated in real time. The CLI does the heavy lifting — AI agents use it to create, update, and close issues programmatically — while the app gives you a unified view and control over everything. Issues live in your project directory, tracked by git, and visible to both humans and AI agents.
@@ -16,7 +18,9 @@ The name says it all: **PaiR** — the human and the AI, working side by side.
 
 ## Installation
 
-Download PaiR for macOS, Linux and Windows: **[pair.w3dev.fr](https://pair.w3dev.fr)**
+Download PaiR for macOS, Linux and Windows:
+
+[![Download PaiR](https://img.shields.io/badge/Download_PaiR-macOS_·_Linux_·_Windows-28a745?style=for-the-badge&logo=download&logoColor=white)](https://pair.w3dev.fr)
 
 The `pair` CLI is bundled with the application and a symlink is created automatically during installation, making it available from any terminal.
 
