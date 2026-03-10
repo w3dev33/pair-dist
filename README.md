@@ -1,6 +1,6 @@
 ![PaiR](assets/logo-dark.png)
 
-[![Visit Website](https://img.shields.io/badge/Visit_Website-4a90d9?style=for-the-badge&logo=globe&logoColor=white)](https://pair.w3dev.fr)
+<p align="center"><a href="https://pair.w3dev.fr"><img src="https://img.shields.io/badge/Visit_Website-4a90d9?style=for-the-badge&logo=globe&logoColor=white" alt="Visit Website"></a></p>
 
 A lightweight desktop application for managing tasks and issues directly inside your codebase.
 
