@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.1] — 2026-03-10
+
+### Features
+- **Soft delete by default** — Deleting an issue now archives it (tombstone) instead of permanently removing it. Check "Delete permanently" in the confirmation dialog for hard delete. Dialog wording adapts contextually ("Archive" vs "Delete permanently").
+
+### Documentation
+- Updated in-app help docs (issue workflow, issue details) to reflect soft delete as default behavior
+
 ## [0.7.0] — 2026-03-09
 
 ### Features
