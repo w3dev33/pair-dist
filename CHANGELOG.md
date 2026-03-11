@@ -1,5 +1,61 @@
 # Changelog
 
+## [0.7.6] — 2026-03-11
+
+### Fixes
+- **App freeze on rapid project switching** — Prevent the app from freezing when switching between projects quickly
+
+## [0.7.5] — 2026-03-11
+
+### Features
+- **Attachment downloads** — Download button added to image and PDF preview modals
+- **PDF attachments** — Full PDF support with preview, migrated to Tauri asset protocol
+- **In-progress badge** — Sidebar project list shows count of in-progress issues
+
+### Fixes
+- **Search regression** — Fixed crash when searching (useI18n called outside setup), also resets pagination on search
+
+## [0.7.4] — 2026-03-11
+
+### Features
+- **Deferred section** — Issues with "deferred" status now appear in their own collapsible table section, placed after "Ready to Work"
+
+## [0.7.3] — 2026-03-10
+
+### Features
+- **Bilingual interface (EN/FR)** — Full i18n support with language switcher, all UI labels and table section headers translated
+- **Automated screenshot capture** — Screenshots generated for the website with theme and locale variants (dark/light x en/fr)
+- **ConflictDialog visual testing** — Mock conflict dialog for design iteration
+
+### Improvements
+- **Website screenshots by locale** — Website now serves screenshots matching the visitor's language and theme
+- **Screenshot deployment checks** — Deploy and verify scripts validate all 4 theme/locale combinations
+
+### Fixes
+- **Duplicate log entries** — Eliminated redundant log lines in the native logger
+- **Table section headers** — Section headers now properly translated in all locales
+- **Linux platform info** — Corrected Linux installation instructions in FAQ
+- **Git sync safety** — Skip git operations when `.pair` is gitignored
+
+## [0.7.2] — 2026-03-10
+
+### Features
+- **User-facing changelog page** — Bilingual (EN/FR) changelog page on the website at `/changelog`, with version badges and grouped features/fixes
+- **Scroll spy navigation** — Header nav links highlight based on visible section when scrolling the homepage
+- **Website-first approach** — Release notes and changelog now live on the website, no longer synced to GitHub pair-dist
+
+### Improvements
+- **Check for updates** — Now uses release body directly instead of fetching CHANGELOG.md from GitHub. "View on GitHub" replaced by "Visit website"
+- **Centralized website URL** — `WWW_BASE_URL` from `.env` used as single source of truth across frontend (runtimeConfig) and scripts (changelog_utils.py)
+- **Frontend constants** — Added `app/utils/constants.ts` for shared GitHub distribution repo references
+- **Release notes generation** — New `scripts/changelog_utils.py` generates user-facing release bodies from `www/app/data/changelog.ts`
+- **FAQ updated** — Added "Is PaiR open source?" and "Does PaiR work offline?" questions, reordered logically, clarified AI hooks support and Beads migration
+
+### Cleanup
+- Removed CHANGELOG.md from pair-dist sync (SYNC_FILES in sync-releases.py and publish-local.py)
+- Removed "All releases available on GitHub" mention from download section
+- Removed GitHub link from header navigation (kept in footer)
+
 ## [0.7.1] — 2026-03-10
 
 ### Features
