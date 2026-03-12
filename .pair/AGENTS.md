@@ -204,6 +204,32 @@ pair relate <id1> <id2> --type relates-to      # Explicit type
 pair unrelate <id1> <id2>                      # Remove relation
 ```
 
+### `sync-external` — Sync issues from an external provider
+
+```bash
+pair sync-external                    # Incremental sync (since last sync)
+pair sync-external --full             # Full sync (ignore last sync timestamp)
+pair sync-external --dry-run          # Preview what would be synced
+```
+
+Syncs issues from GitHub or GitLab into PaiR (one-way: external → PaiR).
+
+**Configuration** (`.pair/config.yaml`):
+```yaml
+sync:
+  provider: github          # or "gitlab"
+  repo: owner/repo          # Optional: override git remote auto-detection
+  token_env: GITHUB_TOKEN   # or GITLAB_TOKEN
+```
+
+The provider is auto-detected from the git remote URL if not specified.
+Use `sync-repo` to point to a different repo than the git remote (e.g., a public issues repo).
+
+| Flag | Description |
+|------|-------------|
+| `--full` | Force full sync (ignore last sync timestamp) |
+| `--dry-run` | Preview what would be synced without writing |
+
 ### `migrate` — Migrate from .beads to .pair
 
 ```bash
