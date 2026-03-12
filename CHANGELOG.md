@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.8.0] — 2026-03-12
+
+### Features
+- **GitHub issue sync** — One-way GitHub → PaiR issue synchronization with single-issue resync
+- **GitLab provider** — GitLab issue sync support via API, auto-detected from git remote
+- **Spec issue type** — Dedicated spec type with its own table section and `pair children` command
+- **Comments fullscreen dialog** — Expand comments in a full dialog with search (Cmd+F) and print (Cmd+P)
+- **AI session count** — Dashboard shows active AI session count per project
+- **Specs dashboard section** — New Specs panel in the project dashboard
+
+### Improvements
+- **Issue title in all preview dialogs** — Image, Markdown, PDF, and Comments dialogs now show the issue title in the header
+- **Shared search/print utilities** — Extracted duplicated DOM search and print code into reusable modules
+- **Search highlight colors** — Blue-themed highlights with proper dark/light mode contrast
+- **In-app help** — Documented single-issue resync and spec type
+
+### Fixes
+- **Sound alerts persistence** — Fixed sound alerts saving to the wrong project path
+- **Dashboard AI column** — Hidden when no AI sessions detected
+
 ## [0.7.6] — 2026-03-11
 
 ### Fixes
