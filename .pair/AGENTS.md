@@ -30,7 +30,7 @@ pair list -s open                # Filter by status
 pair list -s in_progress
 pair list -s closed
 pair list -a                     # All issues (shorthand for -s all)
-pair list -t bug                 # Filter by type (task, bug, feature, epic)
+pair list -t bug                 # Filter by type (task, bug, feature, epic, chore, spec)
 pair list -p p0                  # Filter by priority (p0, p1, p2, p3)
 pair list --assignee "Name"      # Filter by assignee
 pair list --limit 10             # Limit results
@@ -69,7 +69,7 @@ pair create "Add dark mode" \
 | Flag | Short | Description |
 |------|-------|-------------|
 | `--description` | `-d` | Issue body/description |
-| `--type` | `-t` | Issue type: `task`, `bug`, `feature`, `epic` |
+| `--type` | `-t` | Issue type: `task`, `bug`, `feature`, `epic`, `chore`, `spec` |
 | `--priority` | `-p` | Priority: `p0`, `p1`, `p2`, `p3` |
 | `--assignee` | | Assignee name |
 | `--labels` | `-l` | Comma-separated labels |
@@ -124,6 +124,14 @@ pair search "query" --limit 10
 ```bash
 pair ready
 ```
+
+### `children <id>` — List child issues
+
+```bash
+pair children <id>
+```
+
+Lists all child issues of a parent issue (e.g., an epic).
 
 ### `reorder` — Reorder a child issue within its parent
 
