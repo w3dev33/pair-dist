@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.9.0] — 2026-03-13
+
+### Features
+- **Resizable comments panel** — Comments split into dedicated resizable panel with source badges
+- **Unified zoom controls** — New ZoomControl component, compact header/footer, sound toggle moved to footer
+- **Uniformized section buttons** — Consistent collapsible section UI across all table sections
+- **Sync integration tests** — Full roundtrip sync test coverage
+
+### Fixes
+- **CLI sidecar lookup** — Look for sidecar in exe dir instead of resource dir (GitHub #1)
+- **Linux Wayland** — Auto-disable WebKitGTK compositing on Wayland
+- **Resync updates in-place** — No longer deletes and recreates issues on resync
+- **Sync-repo config** — Fix sync-repo detection without explicit sync-provider
+- **Reopen clears closed_at** — Reopening an issue properly clears the closed date
+
 ## [0.8.0] — 2026-03-12
 
 ### Features
