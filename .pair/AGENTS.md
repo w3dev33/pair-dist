@@ -30,10 +30,11 @@ pair list -s open                # Filter by status
 pair list -s in_progress
 pair list -s closed
 pair list -a                     # All issues (shorthand for -s all)
-pair list -t bug                 # Filter by type (task, bug, feature, epic, chore, spec)
+pair list -t bug                 # Filter by type (task, bug, feature, epic, chore, spec, campaign)
 pair list -p p0                  # Filter by priority (p0, p1, p2, p3)
 pair list --assignee "Name"      # Filter by assignee
 pair list --limit 10             # Limit results
+pair list --pinned               # Only pinned issues
 pair list --json                 # JSON output
 ```
 
@@ -69,7 +70,7 @@ pair create "Add dark mode" \
 | Flag | Short | Description |
 |------|-------|-------------|
 | `--description` | `-d` | Issue body/description |
-| `--type` | `-t` | Issue type: `task`, `bug`, `feature`, `epic`, `chore`, `spec` |
+| `--type` | `-t` | Issue type: `task`, `bug`, `feature`, `epic`, `chore`, `spec`, `campaign` |
 | `--priority` | `-p` | Priority: `p0`, `p1`, `p2`, `p3` |
 | `--assignee` | | Assignee name |
 | `--labels` | `-l` | Comma-separated labels |
@@ -103,6 +104,14 @@ Use empty string `""` to clear optional fields, `0` to clear estimate.
 
 ```bash
 pair close <id>
+```
+
+### `pin <id>` / `unpin <id>` — Pin or unpin an issue
+
+```bash
+pair pin <id>                # Pin for quick access
+pair unpin <id>              # Remove pin
+pair list --pinned           # List pinned issues only
 ```
 
 ### `delete <id>` — Delete an issue

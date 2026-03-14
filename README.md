@@ -26,17 +26,31 @@ The `pair` CLI is bundled with the application and a symlink is created automati
 
 ## Features
 
-- **Multi-project dashboard** — Aggregate issues from all your projects in a single window with real-time updates
-- **Built-in CLI** — `pair` ships with the app. Create, update, close issues, manage dependencies, labels, and comments from the terminal
-- **AI-native** — Designed for AI coding assistants (Claude Code, Cursor, Codex). AI activity LED per project, AI events panel (⌘⇧A), focus AI session window (⌘⇧F) — *experimental, macOS only for now*
-- **Real-time push notifications** — CLI mutations and AI events are pushed instantly to the app via Unix socket
-- **Git-synced issues** — Issues live in `.pair/` inside your repo, tracked by git, visible to humans and AI agents alike
-- **Dependencies & blocking** — Link issues with blocks/blocked-by relationships, visualize blockers
-- **Epics & child issues** — Organize work with parent/child hierarchy, drag-and-drop reordering
-- **Attachments** — Attach images and markdown files to issues, previewed directly in the app
+### Core
+- **Multi-project dashboard** — All your projects in one window, with real-time updates, charts, and per-project settings
+- **Built-in CLI** — `pair` ships with the app. Full issue lifecycle from the terminal: create, update, close, pin, comment, attach, search
+- **Git-synced** — Issues live in `.pair/` inside your repo, tracked by git, visible to humans and AI agents alike
+
+### Issue Management
+- **Epics & children** — Parent/child hierarchy with drag-and-drop reordering
+- **Dependencies** — Blocks/blocked-by relationships with visual indicators
+- **Pinned issues** — Pin important issues for quick access — stored in the DB, synced via git, with undo support (⌘Z)
+- **Specs & campaigns** — Dedicated dashboard sections for specifications and ongoing tracking
+- **Attachments** — Images, markdown, and PDF files attached to issues, previewed in-app
 - **Full-text search** — FTS5-powered search across titles, descriptions, and notes
-- **Dark & light themes** — Automatic theme detection with manual override
-- **Cross-platform** — macOS, Linux, Windows
+
+### AI Integration
+- **AI-native workflow** — Designed for AI coding assistants (Claude Code, Cursor, Codex, Gemini CLI). AI agents use the CLI to manage issues autonomously
+- **Live activity tracking** — AI activity LED per project, events panel (⌘⇧A), focus AI session window (⌘⇧F)
+- **Sound alerts** — Per-project notification sounds when AI agents interact with your issues
+- **Real-time push** — CLI mutations and AI events pushed instantly via Unix socket
+
+### Sync & Collaboration
+- **GitHub / GitLab sync** — Bidirectional issue sync with external providers, comment push/pull
+- **Conflict resolution** — Detects and resolves merge conflicts when multiple collaborators edit the same issue
+
+### Cross-platform
+- macOS, Linux, Windows — with dark, light, flat, and neon themes
 
 ## Background & Compatibility
 

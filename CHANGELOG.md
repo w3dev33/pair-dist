@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.9.1] — 2026-03-14
+
+### Features
+- **Pinned issues in DB** — Pin state moved from localStorage to SQLite, synced via git, visible from CLI and AI agents
+- **CLI pin/unpin** — `pair pin <id>`, `pair unpin <id>`, `pair list --pinned`
+- **Undo on unpin** — Toast with undo button + Cmd/Ctrl+Z keyboard shortcut (8s window)
+- **Notification action buttons** — Toast notifications now support visible action buttons
+
+### Improvements
+- **Campaign badge color** — Changed from amber to pink to avoid confusion with P2 priority
+- **README rewrite** — Features section restructured into themed subsections
+
+### Cleanup
+- **Removed `hooked` status** — Dead status type never used in production, fully removed from types, CSS, i18n, and tests
+- **Removed `pinned` status** — Pin is now a boolean flag, not a status value
+- **Removed pinned sort modes** — Simplified to updatedAt sort, removed drag-and-drop reorder
+- **Updated in-app docs** — Dashboard, CLI reference, and AGENTS.md updated for pin/unpin
+
 ## [0.9.0] — 2026-03-13
 
 ### Features
