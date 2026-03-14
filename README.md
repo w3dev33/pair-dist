@@ -32,7 +32,7 @@ The `pair` CLI is bundled with the application and a symlink is created automati
 - **Git-synced** — Issues live in `.pair/` inside your repo, tracked by git, visible to humans and AI agents alike
 
 ### Issue Management
-- **Epics & children** — Parent/child hierarchy with drag-and-drop reordering
+- **Epics & children** — Parent/child hierarchy with ordered subtasks
 - **Dependencies** — Blocks/blocked-by relationships with visual indicators
 - **Pinned issues** — Pin important issues for quick access — stored in the DB, synced via git, with undo support (⌘Z)
 - **Specs & campaigns** — Dedicated dashboard sections for specifications and ongoing tracking
