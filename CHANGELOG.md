@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.9.2] — 2026-03-16
+
+### Features
+- **Panel keyboard shortcuts** — Navigate between panels with `1`/`2`/`3` (+ Numpad, F13/F14/F15), `Escape` closes details preview, `Cmd/Ctrl+R` refreshes issues
+- **Mobile auto-focus** — Switching tabs in mobile mode auto-focuses the container for immediate arrow key navigation
+- **Focused panel indicator** — Subtle border-top highlight shows which panel is active on desktop
+- **Markdown preview refresh** — Refresh button and external change detection for attached markdown files
+- **Blocked icon** — Replaced blocked status icon with LockKeyhole padlock for better clarity
+
+### Cleanup
+- Internal code cleanup and legacy naming removal
+
 ## [0.9.1] — 2026-03-14
 
 ### Features
