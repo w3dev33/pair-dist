@@ -9,7 +9,6 @@
 
 ### Fixes
 - **Attachment list refresh** — Attachment list in preview now refreshes correctly on add/delete
-- **Website URL** — Corrected website URL in verify-www.py
 
 ### Dependencies
 - Updated 15 dependencies (Nuxt, Vue, Tailwind, Vitest, Reka UI, etc.)
