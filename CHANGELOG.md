@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.9.3] — 2026-03-17
+
+### Features
+- **Issue focus borders** — Active issue row highlighted with a visible focus border for better accessibility
+- **Project path navigation** — PathSelector now supports keyboard navigation and direct project switching
+- **Keyboard shortcuts docs** — Added keyboard shortcuts documentation page (EN/FR)
+
+### Fixes
+- **Attachment list refresh** — Attachment list in preview now refreshes correctly on add/delete
+- **Website URL** — Corrected website URL in verify-www.py
+
+### Dependencies
+- Updated 15 dependencies (Nuxt, Vue, Tailwind, Vitest, Reka UI, etc.)
+
 ## [0.9.2] — 2026-03-16
 
 ### Features
