@@ -39,10 +39,17 @@ The `pair` CLI is bundled with the application and a symlink is created automati
 - **Attachments** — Images, markdown, and PDF files attached to issues, previewed in-app
 - **Full-text search** — FTS5-powered search across titles, descriptions, and notes
 
+### Integrated Terminal
+- **Multi-session terminals** — Run multiple terminal sessions per project with a tabbed interface, directly inside PaiR. No need to switch to an external terminal
+- **Launch AI from issues** — Click Play on any issue to open a terminal tab and start Claude Code with `/run-issue` automatically
+- **Split view** — Pin tabs to display terminals side by side. A built-in multiplexer experience for monitoring several AI sessions in parallel
+- **Smart notifications** — When an AI agent running inside PaiR needs your attention, the terminal tab flashes and turns red with a sound alert. Click the notification to jump directly to the right tab
+- **AI Text Transform** — Transform text in any input field using AI: reformulate, translate, or summarize. Works with any Claude subscription
+
 ### AI Integration
 - **AI-native workflow** — Designed for AI coding assistants (Claude Code, Cursor, Codex, Gemini CLI). AI agents use the CLI to manage issues autonomously
 - **Live activity tracking** — AI activity LED per project, events panel (⌘⇧A), focus AI session window (⌘⇧F)
-- **Sound alerts** — Per-project notification sounds when AI agents interact with your issues
+- **Sound alerts** — Per-project notification sounds when AI agents interact with your issues. Internal sessions (PaiR terminal) get visual tab alerts, external sessions (Zed, Cursor, VS Code) get toast notifications
 - **Real-time push** — CLI mutations and AI events pushed instantly via Unix socket
 
 ### Sync & Collaboration

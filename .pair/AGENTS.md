@@ -1,6 +1,46 @@
 # AGENTS.md — PaiR
 
 This project uses `pair` for issue tracking. Issues are stored locally in SQLite (`.pair/pair.db`).
+The PaiR app monitors AI activity in real-time — every CLI call you make is reflected instantly in the UI.
+
+## First-time setup — Hooks
+
+**On your first session in this project, check if PaiR notification hooks are installed.** If they are not, propose to the user to set them up. Hooks enable real-time notifications in PaiR: sound alerts, visual indicators, and AI activity tracking.
+
+To check: look for `pair notify` entries in `~/.claude/settings.json` (global) or `.claude/settings.json` (project-level) under `"hooks"`.
+
+If missing, offer to install them by adding the hooks configuration listed in the "Claude Code hooks configuration" section below. This is a one-time setup — once installed, every action you take will be visible in the PaiR app.
+
+## How to work with PaiR
+
+**These are not suggestions — they are part of your workflow.** The human using this project expects you to track your work through PaiR, just like you would use git for version control.
+
+### Before starting any task
+
+- Run `pair list -s open` to see existing issues — your task may already be tracked
+- If working on a specific issue, run `pair update <id> -s in_progress` before writing any code
+- Run `pair show <id>` to read the full context (description, comments, acceptance criteria)
+
+### While working
+
+- **Found a bug?** → `pair create "Bug title" -t bug -p p1 -d "Description"`
+- **Spotted a TODO or limitation?** → `pair create "Title" -t task -d "Details"`
+- **Hit a blocker?** → `pair update <id> -s blocked` and `pair dep add <id> <blocker-id>`
+- **Made progress worth noting?** → `pair comments add <id> "What was done"`
+
+### When finishing work
+
+- Add a summary comment: `pair comments add <id> "Done: what was implemented"`
+- Close the issue: `pair close <id>`
+- Reference the issue ID in your commit message
+
+### Always
+
+- **Never ignore `.pair/`** — it is the project's issue tracker, not a temp folder
+- **Commit `.pair/issues.jsonl` separately** from code changes (e.g., `chore(pair): update issues`)
+- **Check for related issues** before creating duplicates: `pair search "keyword"`
+
+---
 
 ## CLI Binary
 
@@ -264,48 +304,74 @@ pair notify -t test -m "Hello"              # Test notification
 
 ## Claude Code hooks configuration
 
-To connect Claude Code to PaiR, add hooks to `.claude/settings.json` in your project:
+To connect Claude Code to PaiR, add hooks to `~/.claude/settings.json` (global) or `.claude/settings.json` (per-project):
 
 ```json
 {
   "hooks": {
     "PreToolUse": [
-      { "matcher": "", "hooks": [{ "type": "command", "command": "pair notify --hook PreToolUse" }] }
+      { "matcher": "", "hooks": [{ "type": "command", "command": "/usr/local/bin/pair notify --hook PreToolUse || true" }] }
     ],
     "PostToolUse": [
-      { "matcher": "", "hooks": [{ "type": "command", "command": "pair notify --hook PostToolUse" }] }
+      { "matcher": "", "hooks": [{ "type": "command", "command": "/usr/local/bin/pair notify --hook PostToolUse || true" }] }
     ],
     "Notification": [
-      { "matcher": "", "hooks": [{ "type": "command", "command": "pair notify --hook Notification" }] }
+      { "matcher": "", "hooks": [{ "type": "command", "command": "/usr/local/bin/pair notify --hook Notification || true" }] }
     ],
     "Stop": [
-      { "matcher": "", "hooks": [{ "type": "command", "command": "pair notify --hook Stop" }] }
+      { "matcher": "", "hooks": [{ "type": "command", "command": "/usr/local/bin/pair notify --hook Stop || true" }] }
     ],
     "SubagentStop": [
-      { "matcher": "", "hooks": [{ "type": "command", "command": "pair notify --hook SubagentStop" }] }
+      { "matcher": "", "hooks": [{ "type": "command", "command": "/usr/local/bin/pair notify --hook SubagentStop || true" }] }
+    ],
+    "UserPromptSubmit": [
+      { "matcher": "", "hooks": [{ "type": "command", "command": "/usr/local/bin/pair notify --hook UserPromptSubmit || true" }] }
     ],
     "PreCompact": [
-      { "matcher": "", "hooks": [{ "type": "command", "command": "pair notify --hook PreCompact" }] }
+      { "matcher": "", "hooks": [{ "type": "command", "command": "/usr/local/bin/pair notify --hook PreCompact || true" }] }
     ]
   }
 }
 ```
 
-**Important:** Claude Code hooks run in a minimal shell where `PATH` may be incomplete.
-Always use the absolute path to the `pair` binary in hook commands (run `which pair` to find it):
+**Important:**
 
-- **macOS:** `/usr/local/bin/pair` (or your symlink location)
-- **Linux:** `/usr/bin/pair`
+- **Absolute path required:** Claude Code hooks run in a minimal shell where `PATH` may be incomplete. Always use the absolute path to the `pair` binary (run `which pair` to find it):
+  - **macOS:** `/usr/local/bin/pair` (or your symlink location)
+  - **Linux:** `/usr/bin/pair`
+- **Resilience pattern (`|| true`):** If the `pair` binary is out of sync with the app (e.g., after a version bump or failed rebuild), hooks can error. The `|| true` absorbs any non-zero exit code — so Claude Code keeps working even if PaiR notifications are broken.
 
 This enables real-time AI activity tracking in the PaiR app: per-project activity LED,
 AI events panel, and session focus (switch to the editor window where AI is working).
 
-## Workflow: Work on an issue
+## Workflow examples
+
+### Work on an existing issue
 
 ```bash
-pair list -s open              # Pick an issue
-pair update <id> -s in_progress
+pair list -s open                                    # Pick an issue
+pair show <id>                                       # Read full context
+pair update <id> -s in_progress                      # Signal you're working on it
 # ... do the work ...
-pair comments add <id> "Done: implemented the feature"
-pair close <id>
+pair comments add <id> "Done: implemented X, Y, Z"  # Summarize what was done
+pair close <id>                                      # Close when complete
+```
+
+### Report issues discovered during work
+
+```bash
+pair create "Login form rejects valid emails" -t bug -p p1 -d "Emails with + are rejected"
+pair create "Refactor auth middleware" -t task -p p2 -d "Extract token validation"
+pair create "Add dark mode support" -t feature -p p3 -d "User requested in #42"
+```
+
+### Track sub-tasks of a larger effort
+
+```bash
+pair create "API redesign" -t epic
+# Returns: epic-a1b2
+pair create "Design new endpoints" -t task --parent epic-a1b2
+pair create "Write migration script" -t task --parent epic-a1b2
+pair create "Update client SDK" -t task --parent epic-a1b2
+pair children epic-a1b2                              # View progress
 ```

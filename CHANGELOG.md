@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.10.0] — 2026-03-20
+
+### Features
+- **Integrated multi-session terminals** — Run multiple terminal sessions per project with tabbed interface. Launch Claude Code directly from issues, monitor AI agents in real time with visual and sound notifications when they need attention
+- **Terminal split view** — Pin tabs to display terminals side by side. Built-in multiplexer experience with per-project persistence
+- **AI notification routing** — Internal sessions flash and turn red, external sessions (Zed, Cursor, VS Code) show toast + sound only
+- **AI Text Transform** — Transform text in any input field using AI. Smart interpretation: reformulate, translate, summarize. Works with any Claude subscription
+
+### Fixes
+- **Markdown zoom** — Zoom now scales all elements (headings, code, tables), not just normal text
+- **Dashboard charts** — Charts expanded by default on first launch
+
+### Docs
+- New "AI Text Transform" dedicated help page (EN/FR)
+- Updated terminal docs (split view, pins, notifications, shortcuts) — EN/FR
+- Added terminal section to keyboard shortcuts doc
+
 ## [0.9.3] — 2026-03-17
 
 ### Features
