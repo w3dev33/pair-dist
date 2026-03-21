@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.10.2] — 2026-03-21
+
+### Fixes
+- **Windows CLI PATH** — CLI install directory is now automatically added to user PATH on Windows
+- **Windows/Linux update dialog** — "Download & Quit" button only shown on macOS; Windows/Linux show "Visit website" instead
+- **Linux PATH fix message** — Onboarding PATH instructions now shown on Linux too (was macOS-only)
+- **Cross-platform PATH resolution** — `get_extended_path()` now uses correct separator and paths on Windows
+
 ## [0.10.1] — 2026-03-21
 
 ### Features
