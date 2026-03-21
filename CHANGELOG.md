@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.10.1] — 2026-03-21
+
+### Features
+- **Windows terminal support** — Terminal now detects and uses PowerShell Core, Windows PowerShell, or cmd.exe automatically
+- **Review onboarding** — New button in Settings to review the getting started steps at any time
+
+### Fixes
+- **Onboarding scroll on small screens** — Onboarding panel now scrolls properly on low-resolution displays (Windows/small screens)
+- **CLI symlink auto-repair** — App automatically repairs broken CLI symlink at startup
+- **French locale** — Replaced "issues" with "tickets" throughout French locale for consistency
+
+### Docs
+- Windows unsigned app notice on website download page (SmartScreen instructions)
+- Updated in-app docs: hooks-setup, sync-conflicts, terminal — clarify Unix socket vs Windows polling
+- Updated terminal shortcut to mention Linux/Windows
+
 ## [0.10.0] — 2026-03-20
 
 ### Features
