@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.11.0] — 2026-03-22
+
+### Features
+- **tmux mode** — Persistent terminal sessions that survive app restarts and can be accessed from external terminals (Zed, iTerm, VS Code) via `tmux attach`
+- **Issue-named sessions** — tmux sessions are automatically named after the issue ID (e.g., `pair-xein-16` in `tmux ls`)
+- **Smart session close** — Detects when a tmux session is attached in another terminal and warns before killing. Switch defaults to "detach only" when session is used elsewhere
+- **Auto-close on issue close** — Closing an issue automatically closes its associated terminal session, with persistent toast notification for poll-detected closes
+- **Natural language Run prompt** — "Work on bug pair-xein.23: Fix login" instead of generic commands
+- **Mode switch confirmation** — Changing terminal mode (PTY ↔ tmux) shows a confirmation when sessions are open
+- **Kill switch on tab close** — Toggle to also terminate the tmux session when closing a tab (enabled by default)
+
+### Fixes
+- **tmux path resolution** — Apps launched from Finder (not terminal) now correctly find the tmux binary
+- **tmux session restore** — Fixed input routing, resize, and status bar on restored sessions
+- **tmux prompt detection** — Fixed latency in Claude prompt detection and stale state
+- **Split border** — Hidden border in single-tab mode
+- **tmux prefix key** — Disabled tmux prefix to avoid conflicts with PaiR shortcuts
+- **Active tab persistence** — Active tab is correctly persisted when closing an issue session
+- **Windows PTY PATH** — CLI `pair` is now in the PTY shell PATH on Windows
+- **Parent validation** — Creating a child issue on a non-existent parent is now rejected
+
+### Docs
+- tmux mode documented in in-app help (EN/FR)
+- tmux mode mentioned in website features and FAQ
+- Issue comments traçability guidelines added to CLAUDE.md
+
 ## [0.10.2] — 2026-03-21
 
 ### Fixes
