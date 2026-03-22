@@ -72,7 +72,7 @@ For existing Beads projects, the app handles migration automatically. The migrat
 
 ## For AI agents
 
-PaiR is designed to be driven by AI coding assistants (Claude Code, Cursor, Copilot, etc.). The `pair` CLI is bundled — agents use it to manage issues, and the app reflects every change in real time.
+PaiR is designed to be driven by AI coding assistants (Claude Code, Cursor, Codex, Gemini CLI, etc.). The `pair` CLI is bundled — agents use it to manage issues, and the app reflects every change in real time.
 
 ### Setup
 
