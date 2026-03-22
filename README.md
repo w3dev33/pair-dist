@@ -72,42 +72,64 @@ For existing Beads projects, the app handles migration automatically. The migrat
 
 ## For AI agents
 
-PaiR is designed to be driven by AI coding assistants (Claude Code, Cursor, Copilot, etc.). Projects can be initialized from the desktop app (just add a folder) or via `pair init` from the terminal. Either way, an `AGENTS.md` file is generated in `.pair/` with the full CLI reference — commands, flags, and workflows.
+PaiR is designed to be driven by AI coding assistants (Claude Code, Cursor, Copilot, etc.). The `pair` CLI is bundled — agents use it to manage issues, and the app reflects every change in real time.
 
-### CLI-driven workflow
+### Setup
 
-Agents can use the CLI to manage the full issue lifecycle:
+1. **Initialize the project**: from the app (add a folder) or via `pair init`
+2. **Read the reference**: an `AGENTS.md` is generated in `.pair/` with the full CLI documentation — commands, flags, workflows, and expected behaviors
+3. **Install notification hooks** (Claude Code): add `pair notify --hook` hooks in `.claude/settings.json` so the app gets real-time AI activity notifications (sound, tab flash, toast). The setup instructions are in `AGENTS.md`
+
+### Teaching the agent
+
+Add these rules to your project's `CLAUDE.md` or equivalent agent configuration:
+
+```markdown
+## Issue tracking
+
+- Use `pair` CLI for all issue management (create, update, close, comment, search)
+- Before starting work: `pair list -s open` to check existing issues, then `pair update <id> -s in_progress`
+- Before creating an issue: `pair search "keyword"` to avoid duplicates
+- When done: `pair comments add <id> "Summary of what was done"` then `pair close <id>`
+- Commit `.pair/issues.jsonl` separately from code: `chore(pair): update issues`
+- Never ignore `.pair/` — it is the project's issue tracker
+```
+
+The key point: **the agent should treat `pair` like `git`** — not optional, part of the workflow. Every task starts with checking issues, every completion ends with closing one.
+
+### CLI reference
+
+The full command reference is in [`.pair/AGENTS.md`](.pair/AGENTS.md). Key commands:
 
 ```bash
 pair list -s open              # Find available work
-pair show <id>                 # Read issue details + comments
+pair show <id>                 # Read full context (description, comments, children)
+pair create "Title" -t bug     # Create an issue (-t bug/feature/task/epic, -d, -p, --parent)
 pair update <id> -s in_progress
-# ... do the work ...
-pair comments add <id> "Done: implemented the feature"
+pair comments add <id> "Progress update"
 pair close <id>
+pair search "keyword"          # Full-text search across all issues
+pair attach <id> file.png      # Attach images, markdown, PDFs
 ```
 
-Beyond basic CRUD, the CLI supports epics with child issues, dependencies, labels, attachments, pinning, full-text search, and more. See [`.pair/AGENTS.md`](.pair/AGENTS.md) for the complete reference.
+### Integrated terminal
 
-### Integrated terminal — AI sessions inside PaiR
+Instead of running agents in an external terminal, launch them directly from PaiR:
 
-Instead of running AI agents in an external terminal, launch them directly from PaiR:
+- **Click Play on any issue** — opens a terminal tab named after the issue and starts the AI assistant with the right context
+- **tmux mode** — sessions persist across app restarts. Attach from any external terminal via `tmux attach -t pair-<issue-id>` to monitor or intervene while the agent works
+- **Real-time notifications** — when the agent needs attention, the tab flashes red with a sound alert. Click to jump to the right session
+- **Split view** — pin tabs to monitor multiple agents side by side
 
-- **Click Play on any issue** — PaiR opens a terminal tab, names the session after the issue, and starts your AI assistant with the right context
-- **tmux mode** — Sessions persist across app restarts. Attach from any external terminal via `tmux attach -t pair-<issue-id>` to monitor or intervene
-- **Real-time notifications** — When the AI needs attention (question, error, completion), PaiR flashes the tab red with a sound alert. Click to jump directly to the right session
-- **Multi-agent monitoring** — Pin tabs to split the view and watch multiple AI sessions side by side
+### Real-time push
 
-### Push notifications — real-time feedback loop
-
-Every CLI mutation triggers a push event via Unix socket. The app refreshes instantly — no polling delay. AI agents running inside PaiR's terminal are automatically detected, and their activity is routed to the correct project and tab.
+Every CLI mutation triggers a push event via Unix socket — the app refreshes instantly, no polling. Agents running inside PaiR's terminal are automatically detected, and their activity is routed to the correct project and tab.
 
 ```
-AI agent (Claude Code) → pair notify --hook → Unix socket → App refresh
-                                                          → Tab flash / sound / toast
+Agent → pair CLI → Unix socket push → App refresh + tab flash + sound
 ```
 
-This means AI agents don't need any special integration — they just use the `pair` CLI, and the app reacts in real time.
+No special integration needed — agents just use the `pair` CLI, and the app reacts.
 
 ## Links
 
