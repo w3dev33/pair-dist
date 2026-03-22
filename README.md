@@ -41,7 +41,9 @@ The `pair` CLI is bundled with the application and a symlink is created automati
 
 ### Integrated Terminal
 - **Multi-session terminals** — Run multiple terminal sessions per project with a tabbed interface, directly inside PaiR. No need to switch to an external terminal
-- **Launch AI from issues** — Click Play on any issue to open a terminal tab and start Claude Code with `/run-issue` automatically
+- **tmux mode** — Persistent sessions that survive app restarts. Access your sessions from any external terminal (Zed, iTerm, VS Code) via `tmux attach`. Sessions are automatically named after issue IDs
+- **Smart session close** — Detects when a tmux session is attached in another terminal and warns before killing. Defaults to detach when used elsewhere, so your external terminal keeps working
+- **Launch AI from issues** — Click Play on any issue to open a terminal tab and start Claude Code with `/run-issue` automatically. Closing an issue automatically closes its terminal session
 - **Split view** — Pin tabs to display terminals side by side. A built-in multiplexer experience for monitoring several AI sessions in parallel
 - **Smart notifications** — When an AI agent running inside PaiR needs your attention, the terminal tab flashes and turns red with a sound alert. Click the notification to jump directly to the right tab
 - **AI Text Transform** — Transform text in any input field using AI: reformulate, translate, or summarize. Works with any Claude subscription
