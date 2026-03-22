@@ -123,11 +123,7 @@ Instead of running agents in an external terminal, launch them directly from Pai
 
 ### Real-time push
 
-Every CLI mutation triggers a push event via Unix socket — the app refreshes instantly, no polling. Agents running inside PaiR's terminal are automatically detected, and their activity is routed to the correct project and tab.
-
-```
-Agent → pair CLI → Unix socket push → App refresh + tab flash + sound
-```
+Every CLI mutation triggers a push event — the app refreshes instantly. On macOS and Linux, this uses a Unix socket for real-time push. On Windows, the app polls for changes. Agents running inside PaiR's terminal are automatically detected, and their activity is routed to the correct project and tab.
 
 No special integration needed — agents just use the `pair` CLI, and the app reacts.
 
