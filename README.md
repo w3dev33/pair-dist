@@ -74,17 +74,40 @@ For existing Beads projects, the app handles migration automatically. The migrat
 
 PaiR is designed to be driven by AI coding assistants (Claude Code, Cursor, Copilot, etc.). Projects can be initialized from the desktop app (just add a folder) or via `pair init` from the terminal. Either way, an `AGENTS.md` file is generated in `.pair/` with the full CLI reference — commands, flags, and workflows.
 
+### CLI-driven workflow
+
 Agents can use the CLI to manage the full issue lifecycle:
 
 ```bash
 pair list -s open              # Find available work
+pair show <id>                 # Read issue details + comments
 pair update <id> -s in_progress
 # ... do the work ...
 pair comments add <id> "Done: implemented the feature"
 pair close <id>
 ```
 
-See [`.pair/AGENTS.md`](.pair/AGENTS.md) for the complete reference.
+Beyond basic CRUD, the CLI supports epics with child issues, dependencies, labels, attachments, pinning, full-text search, and more. See [`.pair/AGENTS.md`](.pair/AGENTS.md) for the complete reference.
+
+### Integrated terminal — AI sessions inside PaiR
+
+Instead of running AI agents in an external terminal, launch them directly from PaiR:
+
+- **Click Play on any issue** — PaiR opens a terminal tab, names the session after the issue, and starts your AI assistant with the right context
+- **tmux mode** — Sessions persist across app restarts. Attach from any external terminal via `tmux attach -t pair-<issue-id>` to monitor or intervene
+- **Real-time notifications** — When the AI needs attention (question, error, completion), PaiR flashes the tab red with a sound alert. Click to jump directly to the right session
+- **Multi-agent monitoring** — Pin tabs to split the view and watch multiple AI sessions side by side
+
+### Push notifications — real-time feedback loop
+
+Every CLI mutation triggers a push event via Unix socket. The app refreshes instantly — no polling delay. AI agents running inside PaiR's terminal are automatically detected, and their activity is routed to the correct project and tab.
+
+```
+AI agent (Claude Code) → pair notify --hook → Unix socket → App refresh
+                                                          → Tab flash / sound / toast
+```
+
+This means AI agents don't need any special integration — they just use the `pair` CLI, and the app reacts in real time.
 
 ## Links
 
