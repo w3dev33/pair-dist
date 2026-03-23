@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.11.1] — 2026-03-23
+
+### Fixes
+- **tmux 3.6+ compatibility** — Terminal tmux mode failed with immediate EOF on systems with tmux 3.6+. The PTY attach command was missing the `TERM` environment variable, causing tmux to refuse the connection.
+
 ## [0.11.0] — 2026-03-22
 
 ### Features
