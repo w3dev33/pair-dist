@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.11.2] — 2026-03-23
+
+### Fixes
+- **"Visit Website" button** — Clicking the button in the Check for Updates dialog caused an unhandled error on all platforms. The shell plugin was missing the `open` scope configuration in `tauri.conf.json`.
+- **tmux terminal display** — CLI tools (e.g. Claude Code) rendered degraded ASCII logos inside tmux sessions. Now forces `TERM=xterm-256color` inside tmux for consistent Unicode rendering.
+
 ## [0.11.1] — 2026-03-23
 
 ### Fixes
