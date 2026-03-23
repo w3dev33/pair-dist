@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.1] — 2026-03-23
+
+### Fixes
+- **Play button missing** — Run column now re-syncs when switching projects (no more Cmd+R needed)
+- **Shift+Enter in terminal** — Works in both PTY and tmux modes (kitty keyboard protocol + tmux send-keys bypass)
+- **Claude Code icons** — MesloLGS NF font loaded for Nerd Font glyphs (no more red rectangles)
+- **Accents in tmux** — UTF-8 locale forced on all terminal sessions (LANG/LC_ALL + tmux -u flag)
+
 ## [0.12.0] — 2026-03-23
 
 ### Features
