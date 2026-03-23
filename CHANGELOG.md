@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.12.2] — 2026-03-23
+
+### Fixes
+- **App freeze on project switch** — Column config watcher (`deep: true`) triggered an infinite reactive loop when switching projects, causing `Maximum recursive updates exceeded`. Replaced with a stable ID-based watcher
+- **Thread starvation on startup** — `TRACKER_ENGINES` global mutex blocked all concurrent project access. Replaced with per-project `Arc<Mutex<Engine>>` locking so different projects don't block each other
+- **Startup overload** — `initialScan` fired `cliList` for all projects in parallel via `Promise.allSettled`, saturating the Tauri thread pool. Serialized to sequential calls
+- **Migration dialog crash** — `useIssues()` was called inside event handlers (`switchWithoutMigration`, `migrate`) instead of at setup level, causing `useI18n` to throw
+- **Filter watcher race** — `reloadProjectStorage` updated filters during project switch, triggering a redundant `fetchIssues` call that raced with `doPathChange`. Added `isSwitchingProject` guard
+
 ## [0.12.1] — 2026-03-23
 
 ### Fixes
