@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.12.0] — 2026-03-23
+
+### Features
+- **Pomodoro timer** — Built-in timer in the footer bar (heart icon) with work/break cycles, persistent notifications with contextual actions, and a popover with play/pause/stop/skip controls
+- **"Start with app" setting** — Optionally auto-launch a Pomodoro cycle when the app starts
+- **State persistence** — Timer state survives app refreshes and restarts, resuming where it left off
+- **Healthy settings** — New collapsible "Healthy" section in Settings with configurable work/break durations, cycle count, auto-start, and notification sound
+- **Website "Takes care of you"** — New feature card combining sound alerts and Pomodoro, hero section mentions developer well-being
+
+### Fixes
+- **Vue warnings** — Fixed missing `isDev` in SettingsDialog and missing `rendered` emit in IssueTable
+- **Silent notifications** — Added `silent` option to `useNotification` to prevent double sounds when the caller plays its own
+
+### UI
+- **Settings uniformization** — All settings sections (Language, Theme, Sound, AI Agent, Terminal, Healthy, Onboarding) now have consistent bordered containers
+
 ## [0.11.2] — 2026-03-23
 
 ### Fixes
