@@ -54,6 +54,17 @@ The `pair` CLI is bundled with the application and a symlink is created automati
 - **Sound alerts** — Per-project notification sounds when AI agents interact with your issues. Internal sessions (PaiR terminal) get visual tab alerts, external sessions (Zed, Cursor, VS Code) get toast notifications
 - **Real-time push** — CLI mutations and AI events pushed instantly via Unix socket
 
+### Activity Journal
+- **Live activity feed** — Every project has a journal that logs issue events, decisions, and progress notes — auto-generated and manually authored
+- **Readable by agents** — AI agents read the journal to understand what happened since their last session
+- **Cross-project view** — In workspace mode, the journal panel merges entries from all associated projects into a single chronological view
+
+### Cross-project Orchestration
+- **Project associations** — Link related projects together (via `pair associate` or app settings). Associations are bidirectional and stored in a global catalog
+- **Shared context** — AI agents automatically read associated projects' journals at session start, so they know what's happening across codebases
+- **Reply-to protocol** — Agents can reply to journal entries from associated projects, enabling asynchronous agent-to-agent communication
+- **Workspace mode** — Pin terminal sessions from multiple projects side by side. The journal panel shows a merged view of all associated projects
+
 ### Sync & Collaboration
 - **GitHub / GitLab sync** — Bidirectional issue sync with external providers, comment push/pull
 - **Conflict resolution** — Detects and resolves merge conflicts when multiple collaborators edit the same issue
@@ -79,6 +90,10 @@ PaiR is designed to be driven by AI coding assistants (Claude Code, Cursor, Code
 1. **Initialize the project**: from the app (add a folder) or via `pair init`
 2. **Read the reference**: an `AGENTS.md` is generated in `.pair/` with the full CLI documentation — commands, flags, workflows, and expected behaviors
 3. **Install notification hooks** (Claude Code): add `pair notify --hook` hooks in `.claude/settings.json` so the app gets real-time AI activity notifications (sound, tab flash, toast). The setup instructions are in `AGENTS.md`
+
+### Cross-project awareness
+
+If a project has associated projects (`pair associations`), the generated `AGENTS.md` includes instructions for cross-project reading. AI agents automatically check associated projects' journals at session start, flag breaking changes, and communicate via the reply-to protocol. No manual setup needed — just link the projects.
 
 ### Teaching the agent
 
@@ -110,6 +125,9 @@ pair comments add <id> "Progress update"
 pair close <id>
 pair search "keyword"          # Full-text search across all issues
 pair attach <id> file.png      # Attach images, markdown, PDFs
+pair journal "Decision note"   # Write to the project journal
+pair associations              # List associated projects
+pair associate <prefix>        # Link two projects together
 ```
 
 ### Integrated terminal

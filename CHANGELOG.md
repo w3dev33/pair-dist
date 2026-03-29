@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.20.0] — 2026-03-29
+
+### Features
+- **Activity journal** — Every project gets a live activity feed. Issues created, changes made, decisions taken — logged automatically and manually via `pair journal`. Collapsible panel in the footer with scroll-to-bottom, project name header, and auto-export to JSONL
+- **Project catalog & associations** — Global project catalog stored in Application Support. Link related projects together via `pair associate` or the app settings. Bidirectional associations with UUID-based catalog
+- **Cross-project orchestration** — AI agents automatically read associated projects' journals at session start. Reply-to protocol enables asynchronous agent-to-agent communication across codebases
+- **Workspace mode** — Pin terminal sessions from multiple projects side by side. Workspace toggle in terminal header, smart "+" button to attach existing sessions, chain link indicator between associated project tabs
+- **Workspace journal view** — Merged chronological view of journal entries from all associated projects in the journal panel
+- **Detachable terminal window** — Pop out terminal sessions into independent windows (PTY mode). Per-project geometry persistence, dynamic window title, and proper session sync
+- **Epics section** — Dedicated Epics section in the issue table with automatic in-progress status when children are active
+- **Full-text search on comments & labels** — FTS5 index now covers comments and labels, not just titles and descriptions
+- **Terminal session count badge** — Sidebar shows the number of active terminal sessions per project
+- **Storage adapter abstraction** — New storage layer for future migration to centralized catalog-based settings
+
+### Fixes
+- **Journal panel** — Entries now display in chronological order (oldest first) with UTC-to-local time conversion
+- **Terminal tmux rendering** — Resize-bounce workaround for reliable rendering on project switch
+- **Log timestamps** — Application logs now use local timezone instead of UTC
+- **Search on poll** — FTS search re-runs on poll instead of silently overwriting results
+- **Detached window focus** — AI notifications focus the detached window instead of reopening internally
+- **Catalog self-association** — Prevented linking a project to itself
+
 ## [0.12.2] — 2026-03-23
 
 ### Fixes

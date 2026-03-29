@@ -3,13 +3,26 @@
 This project uses `pair` for issue tracking. Issues are stored locally in SQLite (`.pair/pair.db`).
 The PaiR app monitors AI activity in real-time — every CLI call you make is reflected instantly in the UI.
 
-## First-time setup — Hooks
+## First-time setup
 
-**On your first session in this project, check if PaiR notification hooks are installed.** If they are not, propose to the user to set them up. Hooks enable real-time notifications in PaiR: sound alerts, visual indicators, and AI activity tracking.
+**On your first session in this project, check these two things:**
+
+### 1. Hooks
+Check if PaiR notification hooks are installed. They enable real-time notifications in PaiR: sound alerts, visual indicators, and AI activity tracking.
 
 To check: look for `pair notify` entries in `~/.claude/settings.json` (global) or `.claude/settings.json` (project-level) under `"hooks"`.
 
 If missing, offer to install them by adding the hooks configuration listed in the "Claude Code hooks configuration" section below. This is a one-time setup — once installed, every action you take will be visible in the PaiR app.
+
+### 2. AGENTS.md awareness
+Check that `~/.claude/CLAUDE.md` (global) contains a reference to `.pair/AGENTS.md`. This ensures every Claude session on any PaiR project reads this file and follows the workflow — especially the cross-project communication protocol.
+
+To check: look for "AGENTS.md" in `~/.claude/CLAUDE.md`. If missing, propose adding:
+```markdown
+## PaiR — Cross-project awareness
+- If `.pair/AGENTS.md` exists in the project, read it at session start
+- If the project has associated projects (`pair associations`), follow the cross-project reading protocol from AGENTS.md
+```
 
 ## How to work with PaiR
 
@@ -20,6 +33,7 @@ If missing, offer to install them by adding the hooks configuration listed in th
 - Run `pair list -s open` to see existing issues — your task may already be tracked
 - If working on a specific issue, run `pair update <id> -s in_progress` before writing any code
 - Run `pair show <id>` to read the full context (description, comments, acceptance criteria)
+- **Check associated projects:** run `pair associations` — if associations exist, read their recent journal: `pair journal --from <prefix> --since 4h` for each one. Adapt your plan if breaking changes or related work is detected.
 
 ### While working
 
@@ -28,8 +42,39 @@ If missing, offer to install them by adding the hooks configuration listed in th
 - **Hit a blocker?** → `pair update <id> -s blocked` and `pair dep add <id> <blocker-id>`
 - **Made progress worth noting?** → `pair comments add <id> "What was done"`
 
+### Session journal — leave a trail
+
+The journal is not just an audit log — it is the **communication channel between agents working on linked projects.** Write journal entries at key moments so that other sessions (on associated projects) can understand what happened here without reading your code or commits.
+
+**When to write:**
+
+| Moment | Example |
+|--------|---------|
+| Starting a significant task | `pair journal "Starting: implement POST /foo endpoint" --tags task` |
+| Key technical decision | `pair journal "Decision: use WebSocket instead of polling for sync" --tags decision` |
+| Completing a unit of work | `pair journal "Done: POST /foo endpoint with validation and tests" --tags progress` |
+| Blocked or unexpected issue | `pair journal "Blocked: dependency X v3 incompatible with our auth layer" --tags blocker` |
+
+**Standard tags:** `task`, `decision`, `progress`, `blocker` — these enable filtering and aggregation.
+
+**Default bias: write.** When in doubt about whether a journal entry is worth writing, write it. The cost of an extra entry is near zero; the cost of a missing one is a blind spot for the associated project. Only skip entries that are clearly internal with no cross-session value (formatting, imports, typos). Ask yourself: *"would an agent on an associated project — or a future session on this project — benefit from knowing this?"* If the answer isn't a clear "no", write it.
+
+### Cross-project awareness — stay in sync
+
+If this project has associated projects, **don't just check the journal at session start and forget about it.** The other session may be working in parallel — re-read at natural transition points:
+
+| When | What to do |
+|------|-----------|
+| Between tasks (finished one, starting another) | `pair journal --from <prefix> --since 1h` — check for new decisions, blockers, or changes |
+| Before a decision that touches a shared boundary | Re-read to make sure the other side hasn't changed the contract you're about to rely on |
+| Before committing code that affects a shared interface | Verify no conflicting changes landed on the other side |
+| Before closing an issue | Final check — don't close with undetected conflicts |
+
+**Frequency:** not on every tool call — at **natural transitions** (between tasks, before commits, before closing issues). If nothing new appears, move on silently.
+
 ### When finishing work
 
+- **If associated projects exist:** run `pair journal --from <prefix> --since 2h` for a final coherence check before closing
 - Add a summary comment: `pair comments add <id> "Done: what was implemented"`
 - Close the issue: `pair close <id>`
 - Reference the issue ID in your commit message
@@ -136,6 +181,8 @@ pair update <id> --parent <parent-id>
 pair update <id> --parent ""             # Clear parent
 pair update <id> --estimate 60
 pair update <id> --estimate 0            # Clear estimate
+pair update <id> --metadata '{"key":"value"}'  # Set metadata JSON
+pair update <id> --metadata ""           # Clear metadata
 ```
 
 Use empty string `""` to clear optional fields, `0` to clear estimate.
@@ -211,6 +258,7 @@ Merge strategy: last-write-wins by `updated_at`. Comments use append-only merge.
 ```bash
 pair comments add <id> "Comment body"
 pair comments delete <comment-id>
+pair comments push <comment-id>         # Push a local comment to the external provider (GitHub/GitLab)
 ```
 
 ### `label` — Manage labels
@@ -261,14 +309,14 @@ pair sync-external --full             # Full sync (ignore last sync timestamp)
 pair sync-external --dry-run          # Preview what would be synced
 ```
 
-Syncs issues from GitHub or GitLab into PaiR (one-way: external → PaiR).
+Syncs issues from GitHub, GitLab, or Redmine into PaiR (one-way: external → PaiR).
 
 **Configuration** (`.pair/config.yaml`):
 ```yaml
 sync:
-  provider: github          # or "gitlab"
+  provider: github          # or "gitlab" or "redmine"
   repo: owner/repo          # Optional: override git remote auto-detection
-  token_env: GITHUB_TOKEN   # or GITLAB_TOKEN
+  token_env: GITHUB_TOKEN   # or GITLAB_TOKEN or REDMINE_API_KEY
 ```
 
 The provider is auto-detected from the git remote URL if not specified.
@@ -301,6 +349,112 @@ pair notify -t test -m "Hello"              # Test notification
 | `-m, --message` | Message content |
 | `--session` | Session ID (from Claude Code hook payload) |
 | `--actor` | Actor name (default: git user.name) |
+| `--ai-name` | Override AI name for testing (claude, cursor, codex, gemini, vibe) |
+
+### `journal` — Project journal (audit trail)
+
+```bash
+pair journal "Decision: use REST API, not GraphQL" --tags architecture,api   # Write
+pair journal --today                    # Today's entries
+pair journal --last 10                  # Last 10 entries
+pair journal --tag api                  # Filter by tag
+pair journal --since 2h                 # Since 2 hours ago
+pair journal --from scripteasy-v4      # Read another project's journal (read-only)
+pair journal --export                   # Export to .pair/journal.jsonl
+```
+
+The journal is **auto-populated** on every `pair create`, `pair close`, and `pair comments add`. Manual entries are for decisions, milestones, and notes.
+
+After reading another project's journal (`--from`), the next manual write is automatically tagged with `reply-to:<project>:<id>` to trace cross-project exchanges.
+
+### `catalog` — Global project catalog
+
+```bash
+pair catalog                           # List all known projects (prefix, path, name)
+```
+
+Projects are auto-registered on any CLI use. The catalog lives in `~/Library/Application Support/com.pair.app/catalog.db`.
+
+### `associate` / `dissociate` / `associations` — Project associations
+
+```bash
+pair associate project-a project-b --reason "Project B consumes Project A's API"
+pair dissociate project-a project-b
+pair associations                      # List active associations
+```
+
+Associations are bidirectional. They enable cross-project journal reading and visual indicators in the workspace.
+
+## Cross-project communication protocol
+
+### Why this exists
+
+When two projects are associated, it means they depend on each other — a change in one can break or require adaptation in the other. But each project has its own AI agent, working in its own session, with no direct communication channel. The journal is that channel: **an asynchronous message bus between agents working on linked projects.**
+
+Without this protocol, an agent changes an API contract on Project A, and the agent on Project B has no idea until something breaks. With it, the agent on Project B reads the journal on session start, sees the change, and can adapt proactively.
+
+### What happens automatically
+- Every `pair create`, `pair close`, and `pair comments add` is logged in the project's journal — no extra action needed.
+- After reading another project's journal (`pair journal --from <prefix>`), your next manual journal write is auto-tagged with `reply-to:<prefix>:<id>`. This creates a traceable conversation thread across projects.
+
+### Session start protocol
+
+A detailed step-by-step procedure is available in `.pair/commands/cross-project.md` — read it for the full protocol including classification rules and report format.
+
+**Important:** the session start check is not a one-time action. See "Cross-project awareness — stay in sync" in the workflow section above for periodic re-reads during the session.
+
+The quick version: check if this project has associated projects:
+
+```bash
+pair associations
+```
+
+If associations exist, read their recent activity:
+
+```bash
+pair journal --from <prefix> --since 4h    # For each associated project
+```
+
+**What to do with what you read:**
+- **Breaking change detected** (API contract, shared schema, data format) → warn the user before starting work. Example: "Project B changed the `/items` endpoint response format 2h ago — this may affect our client code."
+- **Related work in progress** (feature that touches a shared boundary) → factor it into your plan. Don't duplicate effort or make conflicting changes.
+- **No relevant activity** → proceed normally. Don't mention it.
+
+### When to write a manual journal entry
+
+**General session entries** — use the standard tags (`task`, `decision`, `progress`, `blocker`) as described in the "Session journal" section above. These entries track your work for cross-session awareness: starting a task, making a decision, finishing a unit of work, or hitting a blocker.
+
+**Cross-project entries** — when your work directly affects an associated project, tag with the project prefix:
+
+| Trigger | Example |
+|---------|---------|
+| You change a shared interface (API, schema, config format) | `pair journal "Changed GET /items response: added pagination wrapper" --tags api,project-b` |
+| You discover a bug that originates in the other project | `pair journal "Auth token refresh fails — the issue is in Project B's token endpoint, not here" --tags bug,project-b` |
+| You make an architecture decision that constrains the other project | `pair journal "Switching to WebSocket for real-time sync — REST polling deprecated" --tags architecture,project-b` |
+| You complete work that the other project was waiting on | `pair journal "Export endpoint is live — Project B can start integration" --tags api,project-b` |
+
+**Only skip journal entries for:**
+- Things already captured by auto-logging (create/close/comment) — no need to duplicate
+- Purely internal micro-steps with zero cross-session value (formatting, imports, typos)
+
+### The reply-to mechanism
+
+When you read another project's journal with `--from`, PaiR remembers the last entry you saw. Your next manual journal write is automatically tagged `reply-to:<prefix>:<id>`, creating a conversation thread:
+
+```
+[project-b journal]  #42  "Changed /items response format — now paginated"
+        ↓ (agent on project-a reads this)
+[project-a journal]  #18  "Adapted client to paginated /items endpoint"  reply-to:project-b:42
+        ↓ (agent on project-b reads this)
+[project-b journal]  #55  "Confirmed: pagination contract works end-to-end"  reply-to:project-a:18
+```
+
+This gives both agents (and the human) a traceable chain of decisions across projects.
+
+### Rules
+- **Never** run `pair associate` or `pair dissociate` without the user's explicit request — associations are deliberate decisions.
+- **Never** write in another project's journal — cross-project access is **read-only**. You write in your own journal, tagged with the other project's prefix.
+- **Never** spam the journal — if it doesn't cross the project boundary, it doesn't belong here.
 
 ## Claude Code hooks configuration
 
@@ -374,4 +528,25 @@ pair create "Design new endpoints" -t task --parent epic-a1b2
 pair create "Write migration script" -t task --parent epic-a1b2
 pair create "Update client SDK" -t task --parent epic-a1b2
 pair children epic-a1b2                              # View progress
+```
+
+### Cross-project communication (end-to-end)
+
+Scenario: you work on **Project A** (associated with **Project B**). Project B changed an API endpoint.
+
+```bash
+# 1. Session start — check associated projects
+pair associations                                      # → project-b is linked
+pair journal --from project-b --since 4h               # → sees: "Changed GET /items to paginated response"
+
+# 2. You warn the user
+# "Project B switched /items to paginated responses — our client code needs updating."
+
+# 3. You adapt the code, then log the cross-project impact
+pair journal "Adapted API client for paginated /items endpoint" --tags api,project-b
+
+# 4. Check the reply-to was added
+pair journal --last 1                                  # → reply-to:project-b:42
+
+# 5. Later, the agent on Project B reads Project A's journal and sees the confirmation
 ```
