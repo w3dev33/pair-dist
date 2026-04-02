@@ -61,16 +61,39 @@ The journal is not just an audit log — it is the **communication channel betwe
 
 ### Cross-project awareness — stay in sync
 
-If this project has associated projects, **don't just check the journal at session start and forget about it.** The other session may be working in parallel — re-read at natural transition points:
+If this project has associated projects, **don't just check the journal at session start and forget about it.** The other session may be working in parallel — **you MUST re-read at these specific moments:**
 
-| When | What to do |
-|------|-----------|
-| Between tasks (finished one, starting another) | `pair journal --from <prefix> --since 1h` — check for new decisions, blockers, or changes |
-| Before a decision that touches a shared boundary | Re-read to make sure the other side hasn't changed the contract you're about to rely on |
-| Before committing code that affects a shared interface | Verify no conflicting changes landed on the other side |
-| Before closing an issue | Final check — don't close with undetected conflicts |
+| When | What to do | Why |
+|------|-----------|-----|
+| **Before starting any new task** | `pair journal --from <prefix> --since 2h` | The other session may have changed something that affects your plan |
+| **Before editing a shared interface** (API, schema, config, types) | Re-read the other project's journal | Avoid implementing against an outdated contract |
+| **Before every commit** | `pair journal --from <prefix> --since 1h` | Catch last-minute changes before locking in your work |
+| **Before closing an issue** | Final check for all associated prefixes | Don't close with undetected conflicts |
 
-**Frequency:** not on every tool call — at **natural transitions** (between tasks, before commits, before closing issues). If nothing new appears, move on silently.
+**This is not optional.** If you skip these checks, the other session works blind and the human has to manually bridge the gap — which defeats the purpose of the journal.
+
+**If nothing new appears, move on silently** — don't mention you checked. Only surface relevant findings.
+
+### Multi-session same-project awareness
+
+When multiple Claude sessions work on the **same project** simultaneously (e.g., two terminals open on the same repo), they risk conflicting edits. The journal is also the coordination channel for this case.
+
+**At session start**, always check if another session is already active:
+```bash
+pair journal --last 10
+```
+Look for recent `task` or `progress` entries — if another session wrote "Starting: fix JournalPanel layout" 30 minutes ago, **you know someone else is in that area**.
+
+**Before editing a file**, check the journal for recent activity on the same area:
+- If you see another session working on the same component/module, **write a journal entry** signaling your intent before starting: `pair journal "Starting: auto-refresh journal on push events — touching JournalPanel.vue and index.vue" --tags task`
+- This gives the other session a chance to see the overlap on their next journal check
+
+**When you finish a unit of work**, always write a progress entry listing the files you modified:
+```bash
+pair journal "Done: added lastPushAt prop to JournalPanel — modified JournalPanel.vue, index.vue" --tags progress
+```
+
+**The goal:** each session leaves enough breadcrumbs that the other can avoid stepping on the same files. This doesn't prevent all conflicts, but it makes them visible early.
 
 ### When finishing work
 
@@ -396,6 +419,7 @@ Without this protocol, an agent changes an API contract on Project A, and the ag
 ### What happens automatically
 - Every `pair create`, `pair close`, and `pair comments add` is logged in the project's journal — no extra action needed.
 - After reading another project's journal (`pair journal --from <prefix>`), your next manual journal write is auto-tagged with `reply-to:<prefix>:<id>`. This creates a traceable conversation thread across projects.
+- **The PreToolUse hook automatically injects new journal entries** (local + associated projects) into your context before every Edit/Write — you don't need to manually re-read during the session. See "Automatic journal context injection" in the hooks section.
 
 ### Session start protocol
 
@@ -497,6 +521,18 @@ To connect Claude Code to PaiR, add hooks to `~/.claude/settings.json` (global) 
 
 This enables real-time AI activity tracking in the PaiR app: per-project activity LED,
 AI events panel, and session focus (switch to the editor window where AI is working).
+
+### Automatic journal context injection
+
+The `PreToolUse` hook automatically injects recent journal entries into Claude's context before every **Edit** or **Write** tool call. This means:
+
+- **Local journal**: entries from the last hour (or since last check) are shown
+- **Associated projects**: new entries since last check are shown
+- **Silent when empty**: no output if there's nothing new — zero noise
+
+This replaces the need for manual `pair journal --from <prefix>` reads during a session. The hook state is tracked in `.pair/.journal-hook-state` to only show the delta (new entries since last check).
+
+You should still manually read the journal at session start (`pair journal --from <prefix> --since 4h`) for initial context, but during the session the hook keeps you automatically up to date.
 
 ## Workflow examples
 

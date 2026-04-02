@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.21.3] — 2026-04-02
+
+### Features
+- **Terminal session naming** — Sessions now use the project folder name as prefix (e.g., `MyProject 1`, `MyProject zsju.2`). Visible in both PaiR tabs and `tmux ls`, making it easy to identify which project a session belongs to — especially useful in workspace mode
+- **Hooks auto-journal** — Git commits and session stops are automatically logged to the project journal via Claude Code hooks
+- **Journal context injection** — Journal entries are auto-injected as context on Edit/Write tool calls via PreToolUse hooks
+- **Journal auto-refresh** — Journal panel refreshes automatically on push events from external agents
+
+### Fixes
+- **First keypress lost in tmux** — Removed a stray Escape character sent during tmux initialization that was consumed by the shell, causing the first keystroke to be silently dropped
+- **Isolated tmux socket** — PaiR sessions now run on a dedicated tmux socket (`pair`), preventing interference with user's personal tmux sessions
+- **Terminal section auto-open** — Terminal panel no longer opens unexpectedly on hot-reload
+- **Comments panel visibility** — Comments panel stays visible and resizes correctly in split screen
+- **Hook deduplication** — Removed session_stop noise and deduplicated auto_commit journal entries
+
+### Performance
+- **Debounced resize** — Terminal resize events are debounced, keydown handlers consolidated, and deep watchers replaced with targeted ones
+
 ## [0.20.0] — 2026-03-29
 
 ### Features
