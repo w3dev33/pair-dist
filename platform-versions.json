@@ -1,0 +1,7 @@
+{
+  "macOS-ARM64": "0.21.5",
+  "macOS-Intel": "0.21.5",
+  "Linux-amd64": "0.21.5",
+  "Linux-arm64": "0.21.5",
+  "Windows": "0.21.5"
+}
