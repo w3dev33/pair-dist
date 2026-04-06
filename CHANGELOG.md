@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.21.5] — 2026-04-06
+
+### Features
+- **Last Edit section** — New collapsible section showing the 10 most recently modified issues. Populated automatically from journal entries and live push events (create, close, update, comment)
+
+### Fixes
+- **Dashboard push event tracking** — Issue create/update events from CLI and agents now correctly trigger a poll refresh and appear in Last Edit
+- **Cross-platform paths** — Replaced hardcoded `$HOME` paths with `dirs::` crate for proper cross-platform support (Windows, Linux, macOS)
+- **Terminal auto-start default** — Auto-start is now disabled by default for new users, preventing unexpected Claude launches
+- **Terminal multi-tab race condition** — Replaced singleton callbacks (shellReadyResolve, claudeReadyResolve, pendingCommand) with per-session Maps, fixing race conditions when launching multiple terminal tabs rapidly
+
 ## [0.21.3] — 2026-04-02
 
 ### Features

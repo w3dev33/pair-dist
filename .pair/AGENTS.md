@@ -421,28 +421,41 @@ Without this protocol, an agent changes an API contract on Project A, and the ag
 - After reading another project's journal (`pair journal --from <prefix>`), your next manual journal write is auto-tagged with `reply-to:<prefix>:<id>`. This creates a traceable conversation thread across projects.
 - **The PreToolUse hook automatically injects new journal entries** (local + associated projects) into your context before every Edit/Write — you don't need to manually re-read during the session. See "Automatic journal context injection" in the hooks section.
 
-### Session start protocol
+### Session start protocol — MANDATORY
 
-A detailed step-by-step procedure is available in `.pair/commands/cross-project.md` — read it for the full protocol including classification rules and report format.
+**This is the FIRST thing you do when you start a session. No exceptions. Do not skip any step. Do not start working on anything before completing this protocol.**
 
-**Important:** the session start check is not a one-time action. See "Cross-project awareness — stay in sync" in the workflow section above for periodic re-reads during the session.
+**Step 1 — Read the local journal** (always, unconditionally):
 
-The quick version: check if this project has associated projects:
+```bash
+pair journal --last 10
+```
+
+This tells you what happened in recent sessions on this project: decisions made, tasks completed, blockers hit, direction changes. Without this, you are working blind — you might redo work, contradict a decision, or miss critical context.
+
+**Step 2 — Check for associated projects** (always, unconditionally):
 
 ```bash
 pair associations
 ```
 
-If associations exist, read their recent activity:
+**Step 3 — If associations exist, read each associated project's journal** (mandatory for each one):
 
 ```bash
-pair journal --from <prefix> --since 4h    # For each associated project
+pair journal --from <prefix> --since 4h    # Run this for EVERY associated project
 ```
 
-**What to do with what you read:**
-- **Breaking change detected** (API contract, shared schema, data format) → warn the user before starting work. Example: "Project B changed the `/items` endpoint response format 2h ago — this may affect our client code."
+Do not skip this. Do not defer it. The other project's agent may have changed an API, a schema, a shared contract — if you don't read their journal now, you will build on stale assumptions.
+
+**Step 4 — Act on what you read:**
+
+- **Breaking change detected** (API contract, shared schema, data format) → **warn the user immediately**, before starting any work. Example: "Project B changed the `/items` endpoint response format 2h ago — this may affect our client code."
 - **Related work in progress** (feature that touches a shared boundary) → factor it into your plan. Don't duplicate effort or make conflicting changes.
 - **No relevant activity** → proceed normally. Don't mention it.
+
+**This protocol is not a one-time action.** You must re-read journals at key moments during the session — see "Cross-project awareness — stay in sync" above.
+
+A detailed step-by-step procedure with classification rules and report format is available in `.pair/commands/cross-project.md`.
 
 ### When to write a manual journal entry
 
