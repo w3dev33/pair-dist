@@ -304,6 +304,15 @@ Files are copied to `.pair/attachments/{short-id}/`, sanitized (kebab-case, no a
 The app returns **absolute paths** for attachments (it manages multiple projects simultaneously, so paths must be resolvable regardless of the current working directory).
 Emits a push notification so the app refreshes the attachment preview in real-time.
 
+### `detach` — Remove an attachment from an issue
+
+```bash
+pair detach <id> filename.png            # Remove a specific attachment
+```
+
+Deletes the file from `.pair/attachments/{short-id}/`. Cleans up the directory if empty.
+Emits a push notification so the app refreshes.
+
 ### `dep` — Manage dependencies
 
 ```bash
@@ -386,7 +395,7 @@ pair journal --from scripteasy-v4      # Read another project's journal (read-on
 pair journal --export                   # Export to .pair/journal.jsonl
 ```
 
-The journal is **auto-populated** on every `pair create`, `pair close`, and `pair comments add`. Manual entries are for decisions, milestones, and notes.
+The journal is **auto-populated** on every `pair create`, `pair close`, `pair comments add`, `pair update` (status changes → `status_changed`), `pair attach` (`attachment_added`), and `pair detach` (`attachment_removed`). Manual entries are for decisions, milestones, and notes.
 
 After reading another project's journal (`--from`), the next manual write is automatically tagged with `reply-to:<project>:<id>` to trace cross-project exchanges.
 
@@ -471,7 +480,7 @@ A detailed step-by-step procedure with classification rules and report format is
 | You complete work that the other project was waiting on | `pair journal "Export endpoint is live — Project B can start integration" --tags api,project-b` |
 
 **Only skip journal entries for:**
-- Things already captured by auto-logging (create/close/comment) — no need to duplicate
+- Things already captured by auto-logging (create/close/comment/status change/attach/detach) — no need to duplicate
 - Purely internal micro-steps with zero cross-session value (formatting, imports, typos)
 
 ### The reply-to mechanism

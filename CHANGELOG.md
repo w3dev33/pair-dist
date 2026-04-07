@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.22.0] — 2026-04-07
+
+### Features
+- **Video demo on website** — Interactive demo player on the landing page: play/pause/stop overlay on the screenshot, theme-aware (dark/light), auto-returns to image on end or theme/locale change
+- **CLI as single source of truth** — All mutations (status changes, attachments, issue creation) now route through the CLI, ensuring consistent journal tracking and push notifications
+- **Enriched journal** — Journal now tracks `status_changed`, `attachment_added`, and `attachment_removed` events in addition to issue creation/closing
+- **Pagination indicator** — Dashboard shows a visible count of displayed vs total issues above the table, with critical issues always visible regardless of pagination
+
+### Fixes
+- **Dashboard refresh on CLI mutations** — Status changes and attachments from CLI/agents now trigger immediate dashboard refresh
+- **Screenshot automation** — Tmux sessions are cleaned before capture to prevent stale session badges
+
+### Automation
+- **Video capture system** — New `capture-video.py` script with scenario-based recording, journal polling for timing, variable interpolation (`--var theme=light`), pre-layout setup, and automatic speed-up (`--speed 2`)
+- **Remote control commands** — Added `terminal-type`, `terminal-close`, `terminal-switch`, `journal-open/close`, `pomodoro-open/start/reset`, `toast-dismiss-all` for screenshot and video automation
+
 ## [0.21.5] — 2026-04-06
 
 ### Features
