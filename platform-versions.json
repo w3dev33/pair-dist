@@ -1,7 +1,7 @@
 {
-  "macOS-ARM64": "0.21.5",
-  "macOS-Intel": "0.21.5",
-  "Linux-amd64": "0.21.5",
-  "Linux-arm64": "0.21.5",
+  "macOS-ARM64": "0.22.0",
+  "macOS-Intel": "0.22.0",
+  "Linux-amd64": "0.22.0",
+  "Linux-arm64": "0.22.0",
   "Windows": "0.21.5"
 }
