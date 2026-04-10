@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.22.1] — 2026-04-10
+
+### Fixes
+- **Read-only directory handling** — FolderPicker now detects write permissions and adapts the UI: on read-only directories, clicking "Init as PaiR" opens a terminal with `pair init` pre-filled instead of failing silently
+- **Real error messages** — Tauri invoke errors now display the actual error message instead of a generic "Failed to initialize tracker"
+- **Catalog registration on init** — `tracker_init` (app) now calls `catalog::auto_register` like the CLI does, ensuring the project appears in the global catalog
+- **CLI path resolution** — Fixed CLI subprocess path resolution in production app (sidecar + extended PATH)
+
 ## [0.22.0] — 2026-04-07
 
 ### Features
