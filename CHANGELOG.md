@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.23.0] — 2026-04-12
+
+### Features
+- **Orchestration view** — New graphical canvas (VueFlow) showing projects and their terminal sessions as interactive nodes with puzzle-piece connectors for cross-session communication
+- **Bidirectional session sync** — Clicking a session in the graph focuses the terminal tab (and switches project); clicking a terminal tab highlights the session in the graph. Powered by a new `useActiveSession` global store
+- **Workspace mode in graph** — When workspace is active, the graph shows all projects with workspace-pinned sessions alongside the current project and associations
+- **Cross-session journal push** — Linked tmux sessions can broadcast journal entries to each other, including PTY sessions. Link/unlink events are notified
+- **Cross-project favorites** — Star issues from any project; favorites are stored globally in the catalog and displayed in the dashboard
+- **Auto-fit graph** — ResizeObserver detects container changes (terminal open/close, sidebar resize) and auto-fits the viewport. Toggle button in bottom-right corner
+- **Issue title in graph** — Sessions launched via Play show the issue title below the session name
+- **In-app documentation** — New "Orchestration View" section in terminal docs (EN + FR)
+
+### Fixes
+- **tmux issue ID persistence** — `PAIR_ISSUE_ID` was never written to tmux env for root issue IDs. Sessions now survive app restarts with their issue association intact
+- **Session click cross-project** — Clicking a session in a non-active project now correctly switches both the project and the terminal tab
+- **VueFlow fitView timing** — Replaced `nextTick` with `setTimeout(150ms)` for fitView after node changes
+- **Handle border masking** — Added missing masking rects on source handles that caused border bleed
+- **Edge z-index** — Edges now render above project nodes instead of being hidden behind backgrounds
+- **Session badge count** — Corrected session badge count and cleanup logic
+
 ## [0.22.1] — 2026-04-10
 
 ### Fixes

@@ -60,10 +60,12 @@ The `pair` CLI is bundled with the application and a symlink is created automati
 - **Cross-project view** — In workspace mode, the journal panel merges entries from all associated projects into a single chronological view
 
 ### Cross-project Orchestration
+- **Orchestration view** — Graphical canvas showing projects and their terminal sessions as interactive nodes. Puzzle-piece connectors visualize cross-session communication channels. Bidirectional sync: click a session in the graph to focus the terminal, click a terminal tab to highlight it in the graph
 - **Project associations** — Link related projects together (via `pair associate` or app settings). Associations are bidirectional and stored in a global catalog
 - **Shared context** — AI agents automatically read associated projects' journals at session start, so they know what's happening across codebases
+- **Cross-session journal push** — Linked sessions broadcast journal entries to each other in real time, including across projects
 - **Reply-to protocol** — Agents can reply to journal entries from associated projects, enabling asynchronous agent-to-agent communication
-- **Workspace mode** — Pin terminal sessions from multiple projects side by side. The journal panel shows a merged view of all associated projects
+- **Workspace mode** — Pin terminal sessions from multiple projects side by side. The orchestration view and journal panel adapt to show all workspace projects
 
 ### Sync & Collaboration
 - **GitHub / GitLab sync** — Bidirectional issue sync with external providers, comment push/pull

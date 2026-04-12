@@ -387,6 +387,9 @@ pair notify -t test -m "Hello"              # Test notification
 
 ```bash
 pair journal "Decision: use REST API, not GraphQL" --tags architecture,api   # Write
+pair journal "API endpoint ready" --push info          # Write + push to linked sessions
+pair journal "Waiting for frontend integration" --push attente  # Push with "waiting" intent
+pair journal "Run integration tests now" --push action          # Push with "action" intent
 pair journal --today                    # Today's entries
 pair journal --last 10                  # Last 10 entries
 pair journal --tag api                  # Filter by tag
@@ -396,6 +399,8 @@ pair journal --export                   # Export to .pair/journal.jsonl
 ```
 
 The journal is **auto-populated** on every `pair create`, `pair close`, `pair comments add`, `pair update` (status changes → `status_changed`), `pair attach` (`attachment_added`), and `pair detach` (`attachment_removed`). Manual entries are for decisions, milestones, and notes.
+
+**Cross-session push** (`--push`): broadcasts the journal entry in real-time to linked terminal sessions via tmux send-keys. Types: `info` (FYI), `attente` (waiting for the recipient), `action` (instruction to act). Without `--push`, the entry is written to the journal only — no broadcast. Linked sessions are set via the Link icon on terminal tabs or automatically when pinning to a workspace.
 
 After reading another project's journal (`--from`), the next manual write is automatically tagged with `reply-to:<project>:<id>` to trace cross-project exchanges.
 
