@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.24.0] — 2026-04-21
+
+### Features
+- **Paused status** — New `paused` status in the issue workflow for work temporarily set aside
+- **Search field highlight** — Populated search inputs now stand out with a neon yellow style
+- **Table scrollToIssue** — Programmatic navigation to any issue, with automatic section expand, page pagination, and parent epic unfold
+- **Workspace orchestration coverage** — Workspace mode graph now includes projects associated with workspace-pinned projects, even when those associates have no pinned session (bidirectional)
+- **Release scripts** — Auto-detect `CLAUDECODE` to trim verbose output during release workflows
+
+### Fixes
+- **Search reliability** — `external_ref` is now indexed in FTS5; silent search errors are surfaced
+- **Preview sidebar** — Sidebar stays open when navigating to a closed child issue
+- **Terminal detach** — Cross-window sync for active tab, workspace mode, and current project between main app and detached terminal panels. Single-location invariant: the internal section hides whenever any terminal is detached, and clicking the internal header re-attaches unconditionally. AI notifications and focus actions target the detached window when present. Detached header now surfaces tmux/Claude status badges
+
 ## [0.23.0] — 2026-04-12
 
 ### Features
