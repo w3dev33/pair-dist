@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.25.0] — 2026-04-29
+
+### Features
+- **Tracker on a dedicated branch** — `.pair/` migrated from per-branch versioning to a worktree of an orphan `pair-tracker` branch. Tickets persist across `git checkout` and no longer appear in code-branch `git status`. One-click in-app migration with backup tag for rollback. Cross-branch divergence detection merges tickets scattered across legacy branches into the orphan during migration. Auto-trigger dialog at project switch when legacy state is detected
+- **Branch filter & column** — New `branch` column in IssueTable (visible by default, after favorite). New BranchFilterDropdown with 3-tier layout: "Current branch [HEAD]" pseudo-entry mapping to `@head` sentinel that follows `git checkout` automatically, alphabetic by-name pins. Backend `.git/HEAD` watcher emits `git-head-changed` for live UI sync
+- **"Track issues in git" toggle at init** — Opt-out of git versioning for tickets; the toggle conditions whether `pair-tracker` is created at all
+- **Workflow rule update** — On migrated projects, the legacy "two separate commits" rule (code + `.pair/`) becomes "two separate pushes": `git push` then `git -C .pair push`. Auto-deployed to every PaiR-managed project via `.pair/AGENTS.md`
+
+### Fixes
+- **Dashboard Last Edit** — Consistent cross-project ordering
+- **Orchestration** — Internal session flash propagates correctly to SessionNode
+- **Update Download & Quit** — Uses `destroy()` to bypass the quit-confirmation dialog
+- **Tracker migration** — Multiple hardenings: SQLite cache rebuilt from JSONL post-migration, tombstones excluded from issue count, untracked files no longer block working-tree-clean check, Engine cache invalidated after migration/rollback, porcelain leading byte preserved, `.pair/.gitignore` self-healed at every Engine open
+- **Migration on fresh repo** — `git symbolic-ref --short HEAD` resolves the branch even on a 0-commit repo; backup tag silently skipped when there's nothing to roll back to
+- **Filters legacy schema** — `useFilters` now re-normalizes `FilterState` on every project switch, fixing a silent throw when projects had a stored `filters` predating later fields (e.g. `branch === undefined`)
+
 ## [0.24.0] — 2026-04-21
 
 ### Features

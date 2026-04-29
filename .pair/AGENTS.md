@@ -40,6 +40,8 @@ To check: look for "AGENTS.md" in `~/.claude/CLAUDE.md`. If missing, propose add
 - **Found a bug?** → `pair create "Bug title" -t bug -p p1 -d "Description"`
 - **Spotted a TODO or limitation?** → `pair create "Title" -t task -d "Details"`
 - **Hit a blocker?** → `pair update <id> -s blocked` and `pair dep add <id> <blocker-id>`
+- **Pausing work temporarily** (waiting on external response, context switch)? → `pair update <id> -s paused`
+- **Work deferred to later** (not started, postponed)? → `pair update <id> -s deferred`
 - **Made progress worth noting?** → `pair comments add <id> "What was done"`
 
 ### Session journal — leave a trail
@@ -105,8 +107,33 @@ pair journal "Done: added lastPushAt prop to JournalPanel — modified JournalPa
 ### Always
 
 - **Never ignore `.pair/`** — it is the project's issue tracker, not a temp folder
-- **Commit `.pair/issues.jsonl` separately** from code changes (e.g., `chore(pair): update issues`)
+- **Commit `.pair/issues.jsonl` separately** from code changes (legacy mode only — see "Storage modes" below)
 - **Check for related issues** before creating duplicates: `pair search "keyword"`
+
+### Storage modes
+
+PaiR supports two storage layouts for `.pair/`. The mode is auto-detected at boot; both behave the same from a CLI standpoint.
+
+**Legacy mode** — `.pair/` is a plain directory tracked on the current code branch.
+- Tickets visible in `git status` whenever they change.
+- Switching code branches changes the tracker content (tickets appear / disappear).
+- Tracker conflicts can occur when merging code branches.
+- **Workflow rule**: always commit `.pair/` changes in a separate commit from code (`chore(pair): update issues`). Don't mix.
+
+**Migrated mode** — `.pair/` is a worktree of the orphan branch `pair-tracker`.
+- The tracker lives on a dedicated branch with no code; the worktree mounts it transparently at `.pair/`.
+- `.pair/` is gitignored on every code branch and never appears in code-branch `git status`.
+- Switching code branches no longer affects tickets.
+- The separate-commit workflow rule no longer applies — there's nothing to commit on the code branch.
+- **Workflow rule** (translated from "two separate commits" to "two separate pushes"): if the user opted into "Track issues in git" (i.e. `.pair/` is a real git worktree, not just a local SQLite store), pushing the code branch must be followed by a tracker push so tickets are backed up to the remote. Two commands, in order:
+  ```bash
+  git push                  # code branch
+  git -C .pair push          # tracker branch (best-effort; first time: git -C .pair push -u origin pair-tracker)
+  ```
+  Detection: if `git -C .pair rev-parse HEAD` fails or `.pair/` is not a git worktree, the user did not opt into git tracking — skip the tracker push silently. Otherwise, if the push fails (no remote, network, etc.), report and continue — the code push is the source of truth.
+- Migration is one-way through the in-app dialog (or `pair migrate-tracker`); a backup tag is created so the migration can be rolled back in-session.
+
+**How to tell which mode the current project uses**: at boot, the native log (`~/Library/Logs/com.pair.app/pair.log`) prints `worktree mounted` (migrated) or `staying in legacy mode` (legacy). Identical in dev and prod.
 
 ---
 
@@ -134,8 +161,11 @@ pair init
 
 ```bash
 pair list                        # Open issues (default)
-pair list -s open                # Filter by status
+pair list -s open                # Filter by status (open, in_progress, paused, blocked, deferred, closed)
 pair list -s in_progress
+pair list -s paused
+pair list -s blocked
+pair list -s deferred
 pair list -s closed
 pair list -a                     # All issues (shorthand for -s all)
 pair list -t bug                 # Filter by type (task, bug, feature, epic, chore, spec, campaign)
@@ -192,8 +222,16 @@ pair create "Add dark mode" \
 
 ### `update <id>` — Update an issue
 
+Status values: `open`, `in_progress`, `paused`, `blocked`, `deferred`, `closed`. Semantics:
+- `paused` — work started then temporarily halted (waiting on external response/team, context switch)
+- `blocked` — work that cannot start (distinct from `paused`)
+- `deferred` — work not yet started, postponed
+
 ```bash
 pair update <id> -s in_progress
+pair update <id> -s paused
+pair update <id> -s blocked
+pair update <id> -s deferred
 pair update <id> --title "New title"
 pair update <id> -d "Updated description"
 pair update <id> -t bug -p p0
@@ -303,6 +341,15 @@ Supported: images (png, jpg, jpeg, gif, webp, bmp, svg, ico, tiff) and markdown 
 Files are copied to `.pair/attachments/{short-id}/`, sanitized (kebab-case, no accents), with duplicate handling.
 The app returns **absolute paths** for attachments (it manages multiple projects simultaneously, so paths must be resolvable regardless of the current working directory).
 Emits a push notification so the app refreshes the attachment preview in real-time.
+
+**Updating an existing attachment** (replace, not duplicate): `pair attach` does NOT overwrite — re-attaching a file with the same name copies it as `<name>-1.md` (`-2`, `-3`...). When you update a document attached to an issue (timeline.md, plan.md, design.png, etc.) and want the new version to *replace* the old one, always:
+
+```bash
+pair detach <id> <filename>     # remove the old version first
+pair attach <id> <path>          # then attach the new version
+```
+
+Otherwise the issue accumulates stale duplicates the user has to clean up by hand.
 
 ### `detach` — Remove an attachment from an issue
 
