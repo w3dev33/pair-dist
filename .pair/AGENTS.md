@@ -104,6 +104,22 @@ pair journal "Done: added lastPushAt prop to JournalPanel — modified JournalPa
 - Close the issue: `pair close <id>`
 - Reference the issue ID in your commit message
 
+### Closing a parent issue — children inventory (mandatory)
+
+This rule applies to **any issue that has children** — epic, campaign, spec, or any other type used as a parent. Not just epics.
+
+Before closing any parent issue, **inventory its children first** — never close a parent silently while children are still open.
+
+1. Run `pair children <parent-id>` to list them.
+2. Identify children whose status is **not `closed`** (any of `open`, `in_progress`, `paused`, `blocked`, `deferred` triggers the prompt).
+3. If any unfinished children exist, surface the list to the user and ask explicitly — three options, mirroring the delete-cascade dialog model:
+   - **Close parent + cascade-close children** — iterate `pair close` on each child sequentially (no batch-close command exists; if a tracker-specific close skill is available, prefer it per child to preserve Redmine/GitHub sync and closing comments)
+   - **Close only the parent, leave children open** — children remain attached to the now-closed parent
+   - **Cancel**
+4. If all children are already `closed`, or if the issue has no children, close it normally without prompting.
+
+**Blockers are handled automatically.** Closing a blocker auto-releases its blocked issues — `blocked_by` excludes closed blockers. No manual unblock step needed.
+
 ### Always
 
 - **Never ignore `.pair/`** — it is the project's issue tracker, not a temp folder
@@ -120,17 +136,17 @@ PaiR supports two storage layouts for `.pair/`. The mode is auto-detected at boo
 - Tracker conflicts can occur when merging code branches.
 - **Workflow rule**: always commit `.pair/` changes in a separate commit from code (`chore(pair): update issues`). Don't mix.
 
-**Migrated mode** — `.pair/` is a worktree of the orphan branch `pair-tracker`.
+**Migrated mode** — `.pair/` is a worktree of the tracker orphan branch (`pair-tracker` by default; the name is configurable per project via `pair config set tracker.branch <name>`).
 - The tracker lives on a dedicated branch with no code; the worktree mounts it transparently at `.pair/`.
 - `.pair/` is gitignored on every code branch and never appears in code-branch `git status`.
 - Switching code branches no longer affects tickets.
 - The separate-commit workflow rule no longer applies — there's nothing to commit on the code branch.
-- **Workflow rule** (translated from "two separate commits" to "two separate pushes"): if the user opted into "Track issues in git" (i.e. `.pair/` is a real git worktree, not just a local SQLite store), pushing the code branch must be followed by a tracker push so tickets are backed up to the remote. Two commands, in order:
+- **Workflow rule** (translated from "two separate commits" to "two separate pushes"): if the user opted into "Track issues in git" (i.e. `.pair/` is a real git worktree, not just a local SQLite store), the tracker branch must be pushed **before** the code branch so tickets are backed up to the remote and GitHub proposes the code branch (the last one pushed) by default when opening a PR. Two commands, in order:
   ```bash
-  git push                  # code branch
-  git -C .pair push          # tracker branch (best-effort; first time: git -C .pair push -u origin pair-tracker)
+  git -C .pair push          # tracker branch FIRST (best-effort; resolve the configured name with `pair config get tracker.branch` if unsure; first time: git -C .pair push -u origin <tracker-branch>)
+  git push                   # code branch LAST — stays the most recently pushed so GitHub proposes it for PRs
   ```
-  Detection: if `git -C .pair rev-parse HEAD` fails or `.pair/` is not a git worktree, the user did not opt into git tracking — skip the tracker push silently. Otherwise, if the push fails (no remote, network, etc.), report and continue — the code push is the source of truth.
+  Detection: if `git -C .pair rev-parse HEAD` fails or `.pair/` is not a git worktree, the user did not opt into git tracking — skip the tracker push silently and just `git push` the code branch. Otherwise, if the tracker push fails (no remote, network, etc.), report and continue with the code push — the code push is the source of truth.
 - Migration is one-way through the in-app dialog (or `pair migrate-tracker`); a backup tag is created so the migration can be rolled back in-session.
 
 **How to tell which mode the current project uses**: at boot, the native log (`~/Library/Logs/com.pair.app/pair.log`) prints `worktree mounted` (migrated) or `staying in legacy mode` (legacy). Identical in dev and prod.
@@ -156,6 +172,28 @@ PaiR supports two storage layouts for `.pair/`. The mode is auto-detected at boo
 ```bash
 pair init
 ```
+
+### `config` — Per-project configuration
+
+Project-local configuration values stored in the global catalog (machine-local, never shared).
+
+```bash
+pair config get tracker.branch        # Show resolved value (with "(default)" tag if fallback)
+pair config set tracker.branch <name> # Override the tracker branch name for this project
+pair config unset tracker.branch      # Revert to the default
+pair config list                      # Show all keys for the current project
+pair config get tracker.branch --json # JSON output
+```
+
+Supported keys:
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `tracker.branch` | `pair-tracker` | Name of the orphan branch hosting `.pair/` content. Set this **before** `pair migrate-tracker` (or before pushing the orphan branch for the first time) so the right branch is created. Useful when several contributors will push their tracker on the same repo — each user can keep their tracker on a personal branch (`pair-tracker-<username>`) without colliding. |
+
+Validation: branch names must match `^[A-Za-z0-9._/-]+$`, no leading `-` or `/`, no `..`, no `//`, no spaces. Empty values are rejected (use `unset` to revert).
+
+If a remote `origin` is configured at migration time and the resolved branch is still the default, PaiR logs a hint with the suggested personalized name (`pair-tracker-<owner>` parsed from the remote URL).
 
 ### `list` — List issues
 

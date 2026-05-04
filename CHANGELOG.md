@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.26.0] — 2026-05-04
+
+### Features
+- **Tracker branch configurable per project** — Branch name is no longer hardcoded to `pair-tracker`; users can pick a custom name at init or rename it later from Settings (with assisted rename across worktree + remote)
+- **Tracker user combobox in Settings** — User combobox with auto-resolution of git author / `.pair` journal authors
+- **Auto onboarding for new contributors** — First-time contributors on a migrated project get the tracker branch + worktree set up automatically without manual steps
+
+### Fixes
+- **Cascade close guard** — Closing an issue with unfinished children now prompts before cascading; prevents accidental mass-close of an epic's open children (pair-a5og)
+
 ## [0.25.0] — 2026-04-29
 
 ### Features
