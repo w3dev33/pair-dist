@@ -3,5 +3,5 @@
   "macOS-Intel": "0.32.0",
   "Linux-amd64": "0.32.0",
   "Linux-arm64": "0.32.0",
-  "Windows": "0.26.0"
+  "Windows": "0.32.0"
 }
