@@ -282,6 +282,8 @@ pair update <id> --estimate 60
 pair update <id> --estimate 0            # Clear estimate
 pair update <id> --metadata '{"key":"value"}'  # Set metadata JSON
 pair update <id> --metadata ""           # Clear metadata
+pair update <id> --branch feature/x      # Fix associated branch
+pair update <id> --branch ""             # Clear branch
 ```
 
 Use empty string `""` to clear optional fields, `0` to clear estimate.
@@ -403,7 +405,9 @@ Emits a push notification so the app refreshes.
 ```bash
 pair dep add <id> <blocker-id>              # blocker blocks id
 pair dep add <id> <blocker-id> --type blocks
+pair dep add <id> --external redmine-1234 --label "Backend task"   # external blocker (other tracker, no PaiR issue)
 pair dep remove <id> <other-id>
+pair dep remove <id> redmine-1234 --external                       # remove an external blocker
 pair dep tree <id>                          # Recursive dependency tree
 pair dep list <id>                          # Direct dependencies only
 ```
@@ -488,6 +492,23 @@ The journal is **auto-populated** on every `pair create`, `pair close`, `pair co
 **Cross-session push** (`--push`): broadcasts the journal entry in real-time to linked terminal sessions via tmux send-keys. Types: `info` (FYI), `attente` (waiting for the recipient), `action` (instruction to act). Without `--push`, the entry is written to the journal only — no broadcast. Linked sessions are set via the Link icon on terminal tabs or automatically when pinning to a workspace.
 
 After reading another project's journal (`--from`), the next manual write is automatically tagged with `reply-to:<project>:<id>` to trace cross-project exchanges.
+
+#### Natural-language messaging — translate user requests to the right `journal --push`
+
+When the user asks you (in any language) to communicate something to other sessions/peers, **do not** ask them how to phrase it — translate directly to the right command. Recognise these intents (the user may phrase them in English, French, or any other language — interpret the intent, not the surface form):
+
+| Intent | Run |
+|--------|-----|
+| "send a message to X that …" / "tell X that …" / "let X know that …" | `pair journal --push info "…"` |
+| "ask X to …" / "I'm waiting on X for …" | `pair journal --push attente "…"` |
+| "tell X to do …" / "have X run …" | `pair journal --push action "…"` |
+| "log that …" / "write in your journal that …" / "note that …" | `pair journal "…" --tags status` (no push) |
+| "broadcast …" / "announce …" / "let everyone know …" | `pair journal --push info "…"` |
+
+Notes:
+- The `<X>` (peer / session name) is **informational** — the message fans out to **all linked sessions + paired peers** ; the recipient identifies themselves from the linked-session / peer-binding graph the user has already established. You don't need to do peer routing yourself.
+- `info` is the safe default. Use `attente` only when the user is explicitly waiting on something. Use `action` only when they're asking the recipient to actively do something.
+- This is distinct from your own automatic state reporting (which also uses `journal --push` at key milestones — see the "Session journal" section above). The difference is **who initiated** : here it's the user asking you to convey a message ; in the automatic case it's you proactively reporting your state.
 
 ### `catalog` — Global project catalog
 
@@ -599,6 +620,9 @@ To connect Claude Code to PaiR, add hooks to `~/.claude/settings.json` (global) 
 ```json
 {
   "hooks": {
+    "SessionStart": [
+      { "matcher": "", "hooks": [{ "type": "command", "command": "/usr/local/bin/pair notify --hook SessionStart || true" }] }
+    ],
     "PreToolUse": [
       { "matcher": "", "hooks": [{ "type": "command", "command": "/usr/local/bin/pair notify --hook PreToolUse || true" }] }
     ],
@@ -630,6 +654,7 @@ To connect Claude Code to PaiR, add hooks to `~/.claude/settings.json` (global) 
   - **macOS:** `/usr/local/bin/pair` (or your symlink location)
   - **Linux:** `/usr/bin/pair`
 - **Resilience pattern (`|| true`):** If the `pair` binary is out of sync with the app (e.g., after a version bump or failed rebuild), hooks can error. The `|| true` absorbs any non-zero exit code — so Claude Code keeps working even if PaiR notifications are broken.
+- **`SessionStart` hook:** fires when Claude Code opens a new session (startup), resumes one (`/resume`), or clears it (`/clear`). The payload includes `session_id` (also exposed as `CLAUDE_CODE_SESSION_ID` in the environment) and `source` (`startup` / `resume` / `clear`). This gives PaiR a clean session-boundary marker for journal correlation instead of inferring it from the first `UserPromptSubmit`.
 
 This enables real-time AI activity tracking in the PaiR app: per-project activity LED,
 AI events panel, and session focus (switch to the editor window where AI is working).
