@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.33.0] - 2026-08-11
+
+### Features
+- **Session-to-session cables** - A cable wires two local agent sessions together, across projects, and message routing (`pair journal --push --to`) follows the cables instead of project associations. In the graph a cable is a single edge from the initiator to its destination (blue at rest), and each delivered message animates it green in the direction it travelled (forward from the initiator, reversed for the answer). Cabled on the fly when you name a recipient that isn't wired yet; drag two sessions together in the graph or use `pair cable add/rm/list`.
+- **herdr runtime** - Per-session runtime choice via `RuntimeMode` (pty | tmux | herdr). herdr is a single global multiplexed session shown as one tab in every project, restored at boot, with hook identity resolution and inbound/outbound semantic bridges so PaiR observes the agents running in it.
+- **Workspace display pins** - A second layer over workspace membership: pin which workspace sessions show in the split view (`workspaceDisplayPins`), so a large multi-project workspace stays manageable. The tab pin is mode-aware (project vs workspace); the graph shows no display pin.
+- **Resizable split panes + maximize mode** - Per-project and per-workspace pane widths, and a maximized terminal mode.
+- **Cross-project Sessions panel + footer KPIs** - New Sessions section in the left panel across projects; KPI counters moved to the footer.
+- **AI events filtering** - Filter the AI panel by session with a per-tab badge.
+- **Graph grid snapping** - Nodes snap to a 16px grid on drag (`snap-to-grid`).
+- **Journal merged view follows the workspace** - The merged journal view now follows the projects present in the workspace instead of catalog associations.
+
+### Changes
+- **Project associations removed** - The project-to-project association concept (UI, `catalog.rs` API, `pair associate/dissociate/associations` CLI, docs) is retired; its only functional role (message routing) is served by cables. The hook context injection (`inject_journal_context`) now reads the journals of cabled projects.
+- **`PAIR_LINKED` / session-linking removed** - Dead since delivery moved to cables; the whole linked-session mechanism (env sync, `.pair/.linked-sessions`, link buttons) is gone. Workspace pinning is a pure display choice.
+
 ## [0.32.0] - 2026-07-09
 
 ### Features

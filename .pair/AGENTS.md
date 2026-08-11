@@ -21,7 +21,7 @@ To check: look for "AGENTS.md" in `~/.claude/CLAUDE.md`. If missing, propose add
 ```markdown
 ## PaiR — Cross-project awareness
 - If `.pair/AGENTS.md` exists in the project, read it at session start
-- If the project has associated projects (`pair associations`), follow the cross-project reading protocol from AGENTS.md
+- If your session is cabled to sessions in other projects (`pair cable list`), follow the cross-project reading protocol from AGENTS.md
 ```
 
 ## How to work with PaiR
@@ -33,7 +33,7 @@ To check: look for "AGENTS.md" in `~/.claude/CLAUDE.md`. If missing, propose add
 - Run `pair list -s open` to see existing issues — your task may already be tracked
 - If working on a specific issue, run `pair update <id> -s in_progress` before writing any code
 - Run `pair show <id>` to read the full context (description, comments, acceptance criteria)
-- **Check associated projects:** run `pair associations` — if associations exist, read their recent journal: `pair journal --from <prefix> --since 4h` for each one. Adapt your plan if breaking changes or related work is detected.
+- **Check cabled sessions:** run `pair cable list` — for each project on the far end of a cable, read its recent journal: `pair journal --from <prefix> --since 4h`. Adapt your plan if breaking changes or related work is detected.
 
 ### While working
 
@@ -46,7 +46,7 @@ To check: look for "AGENTS.md" in `~/.claude/CLAUDE.md`. If missing, propose add
 
 ### Session journal — leave a trail
 
-The journal is not just an audit log — it is the **communication channel between agents working on linked projects.** Write journal entries at key moments so that other sessions (on associated projects) can understand what happened here without reading your code or commits.
+The journal is not just an audit log — it is the **communication channel between agents working on cabled sessions.** Write journal entries at key moments so that other sessions (cabled to yours) can understand what happened here without reading your code or commits.
 
 **When to write:**
 
@@ -59,18 +59,18 @@ The journal is not just an audit log — it is the **communication channel betwe
 
 **Standard tags:** `task`, `decision`, `progress`, `blocker` — these enable filtering and aggregation.
 
-**Default bias: write.** When in doubt about whether a journal entry is worth writing, write it. The cost of an extra entry is near zero; the cost of a missing one is a blind spot for the associated project. Only skip entries that are clearly internal with no cross-session value (formatting, imports, typos). Ask yourself: *"would an agent on an associated project — or a future session on this project — benefit from knowing this?"* If the answer isn't a clear "no", write it.
+**Default bias: write.** When in doubt about whether a journal entry is worth writing, write it. The cost of an extra entry is near zero; the cost of a missing one is a blind spot for the cabled project. Only skip entries that are clearly internal with no cross-session value (formatting, imports, typos). Ask yourself: *"would an agent on a cabled session — or a future session on this project — benefit from knowing this?"* If the answer isn't a clear "no", write it.
 
 ### Cross-project awareness — stay in sync
 
-If this project has associated projects, **don't just check the journal at session start and forget about it.** The other session may be working in parallel — **you MUST re-read at these specific moments:**
+If your session is cabled to sessions in other projects, **don't just check the journal at session start and forget about it.** The other session may be working in parallel — **you MUST re-read at these specific moments:**
 
 | When | What to do | Why |
 |------|-----------|-----|
 | **Before starting any new task** | `pair journal --from <prefix> --since 2h` | The other session may have changed something that affects your plan |
-| **Before editing a shared interface** (API, schema, config, types) | Re-read the other project's journal | Avoid implementing against an outdated contract |
+| **Before editing a shared interface** (API, schema, config, types) | Re-read the cabled project's journal | Avoid implementing against an outdated contract |
 | **Before every commit** | `pair journal --from <prefix> --since 1h` | Catch last-minute changes before locking in your work |
-| **Before closing an issue** | Final check for all associated prefixes | Don't close with undetected conflicts |
+| **Before closing an issue** | Final check for every cabled project (`pair cable list`) | Don't close with undetected conflicts |
 
 **This is not optional.** If you skip these checks, the other session works blind and the human has to manually bridge the gap — which defeats the purpose of the journal.
 
@@ -99,7 +99,7 @@ pair journal "Done: added lastPushAt prop to JournalPanel — modified JournalPa
 
 ### When finishing work
 
-- **If associated projects exist:** run `pair journal --from <prefix> --since 2h` for a final coherence check before closing
+- **If your session has cables (`pair cable list`):** run `pair journal --from <prefix> --since 2h` for each cabled project as a final coherence check before closing
 - Add a summary comment: `pair comments add <id> "Done: what was implemented"`
 - Close the issue: `pair close <id>`
 - Reference the issue ID in your commit message
@@ -476,9 +476,9 @@ pair notify -t test -m "Hello"              # Test notification
 
 ```bash
 pair journal "Decision: use REST API, not GraphQL" --tags architecture,api   # Write
-pair journal "API endpoint ready" --push info          # Write + push to linked sessions
-pair journal "Waiting for frontend integration" --push attente  # Push with "waiting" intent
-pair journal "Run integration tests now" --push action          # Push with "action" intent
+pair journal "API endpoint ready" --push info --to "PaiR 2"      # Write + push to a cabled recipient
+pair journal "Waiting for frontend integration" --push attente --to scripteasy-v4  # "waiting" intent
+pair journal "Run integration tests now" --push action --to "PaiR 2"   # "action" intent
 pair journal --today                    # Today's entries
 pair journal --last 10                  # Last 10 entries
 pair journal --tag api                  # Filter by tag
@@ -489,7 +489,7 @@ pair journal --export                   # Export to .pair/journal.jsonl
 
 The journal is **auto-populated** on every `pair create`, `pair close`, `pair comments add`, `pair update` (status changes → `status_changed`), `pair attach` (`attachment_added`), and `pair detach` (`attachment_removed`). Manual entries are for decisions, milestones, and notes.
 
-**Cross-session push** (`--push`): broadcasts the journal entry in real-time to linked terminal sessions via tmux send-keys. Types: `info` (FYI), `attente` (waiting for the recipient), `action` (instruction to act). Without `--push`, the entry is written to the journal only — no broadcast. Linked sessions are set via the Link icon on terminal tabs or automatically when pinning to a workspace.
+**Cross-session push** (`--push`): delivers the journal entry in real-time to a **cabled** recipient (named with `--to`) via tmux send-keys. Types: `info` (FYI), `attente` (waiting for the recipient), `action` (instruction to act). `--to` is required; a recipient that isn't cabled yet is cabled on the fly. Without `--push`, the entry is written to the journal only. Cables are created with `pair cable add` or by dragging sessions together in the graph view.
 
 After reading another project's journal (`--from`), the next manual write is automatically tagged with `reply-to:<project>:<id>` to trace cross-project exchanges.
 
@@ -499,16 +499,63 @@ When the user asks you (in any language) to communicate something to other sessi
 
 | Intent | Run |
 |--------|-----|
-| "send a message to X that …" / "tell X that …" / "let X know that …" | `pair journal --push info "…"` |
-| "ask X to …" / "I'm waiting on X for …" | `pair journal --push attente "…"` |
-| "tell X to do …" / "have X run …" | `pair journal --push action "…"` |
+| "send a message to X that …" / "tell X that …" / "let X know that …" | `pair journal --push info "…" --to X` |
+| "ask X to …" / "I'm waiting on X for …" | `pair journal --push attente "…" --to X` |
+| "tell X to do …" / "have X run …" | `pair journal --push action "…" --to X` |
+| "tell everyone on project P …" | `pair journal --push info "…" --to P` |
+| "tell X and Y …" | `pair journal --push info "…" --to X --to Y` |
 | "log that …" / "write in your journal that …" / "note that …" | `pair journal "…" --tags status` (no push) |
-| "broadcast …" / "announce …" / "let everyone know …" | `pair journal --push info "…"` |
+
+| "connect with X" / "cable yourself to X" / "wire us to X" | `pair cable add <X>` |
+| "disconnect from X" / "cut the cable with X" / "we're done with X" | `pair cable rm <X>` |
+| "who are we connected to?" / "list the cables" | `pair cable list` |
 
 Notes:
-- The `<X>` (peer / session name) is **informational** — the message fans out to **all linked sessions + paired peers** ; the recipient identifies themselves from the linked-session / peer-binding graph the user has already established. You don't need to do peer routing yourself.
+- **`--to` is required** (pair-jbuz.4). `<X>` is a session name, a session id, or a
+  **project name** meaning every cabled session of that project. Repeat `--to` for
+  several recipients. A push with no recipient is **refused**: without one it used
+  to reach every session of every associated project, which is exactly the message
+  duplication this removed.
+- **The recipient must be cabled to you.** The cable is the permission, the `--to`
+  is the address. If it isn't, the command says so and tells you to run
+  `pair cable add <X>` — it never delivers silently to someone else.
+- The journal entry is recorded even when delivery is refused: the local trace is
+  kept, only the delivery failed.
 - `info` is the safe default. Use `attente` only when the user is explicitly waiting on something. Use `action` only when they're asking the recipient to actively do something.
 - This is distinct from your own automatic state reporting (which also uses `journal --push` at key milestones — see the "Session journal" section above). The difference is **who initiated** : here it's the user asking you to convey a message ; in the automatic case it's you proactively reporting your state.
+
+### `cable` — Wire your session to another one
+
+```bash
+pair cable add scripteasy-v4        # Connect to that project's session
+pair cable add "PaiR 1"             # …or name the session precisely
+pair cable rm scripteasy-v4         # Disconnect
+pair cable list                     # Your cables + the sessions you can cable
+pair cable list --all               # Every cable, not just yours
+```
+
+A cable wires **your session** to another one, across projects. It is
+**bidirectional** (connecting one way means both talk) and persisted in
+`catalog.db`, so it survives a restart and shows up in the app's graph view.
+
+Naming the target: a **project name** is the usual form (`scripteasy-v4`) and
+works when that project has a single active session. If it has several, the
+command refuses and lists them — name the session instead (`"scripteasy-v4 2"`).
+A session id also works.
+
+Scope: sessions running under tmux or herdr. A plain PTY session exists only in
+the running app and cannot be cabled from the CLI.
+
+**Do not confuse the three channels:**
+
+| Tool | What it does | Reaches the other agent's context? |
+|------|--------------|-----------------------------------|
+| `pair cable` | Opens the line between two sessions | No — it wires, it does not speak |
+| `pair journal --push` | Sends a message to cabled sessions / peers | Yes |
+| `pair notify` | Shows a toast in the PaiR app | **No** — UI only |
+
+Cabling does **not** start a conversation. It declares who may talk to whom;
+saying something still goes through `journal --push`.
 
 ### `catalog` — Global project catalog
 
@@ -518,28 +565,18 @@ pair catalog                           # List all known projects (prefix, path, 
 
 Projects are auto-registered on any CLI use. The catalog lives in `~/Library/Application Support/com.pair.app/catalog.db`.
 
-### `associate` / `dissociate` / `associations` — Project associations
-
-```bash
-pair associate project-a project-b --reason "Project B consumes Project A's API"
-pair dissociate project-a project-b
-pair associations                      # List active associations
-```
-
-Associations are bidirectional. They enable cross-project journal reading and visual indicators in the workspace.
-
 ## Cross-project communication protocol
 
 ### Why this exists
 
-When two projects are associated, it means they depend on each other — a change in one can break or require adaptation in the other. But each project has its own AI agent, working in its own session, with no direct communication channel. The journal is that channel: **an asynchronous message bus between agents working on linked projects.**
+When your session is cabled to a session in another project, the two depend on each other — a change in one can break or require adaptation in the other. Each project has its own AI agent, working in its own session, with no direct communication channel. The journal is that channel: **an asynchronous message bus between agents working on cabled sessions.**
 
-Without this protocol, an agent changes an API contract on Project A, and the agent on Project B has no idea until something breaks. With it, the agent on Project B reads the journal on session start, sees the change, and can adapt proactively.
+Without this protocol, an agent changes an API contract on Project A, and the agent on the cabled session in Project B has no idea until something breaks. With it, the agent on Project B reads the journal on session start, sees the change, and can adapt proactively.
 
 ### What happens automatically
 - Every `pair create`, `pair close`, and `pair comments add` is logged in the project's journal — no extra action needed.
 - After reading another project's journal (`pair journal --from <prefix>`), your next manual journal write is auto-tagged with `reply-to:<prefix>:<id>`. This creates a traceable conversation thread across projects.
-- **The PreToolUse hook automatically injects new journal entries** (local + associated projects) into your context before every Edit/Write — you don't need to manually re-read during the session. See "Automatic journal context injection" in the hooks section.
+- **The PreToolUse hook automatically injects new journal entries** (local + the projects cabled to your session) into your context before every Edit/Write — you don't need to manually re-read during the session. See "Automatic journal context injection" in the hooks section.
 
 ### Session start protocol — MANDATORY
 
@@ -553,19 +590,19 @@ pair journal --last 10
 
 This tells you what happened in recent sessions on this project: decisions made, tasks completed, blockers hit, direction changes. Without this, you are working blind — you might redo work, contradict a decision, or miss critical context.
 
-**Step 2 — Check for associated projects** (always, unconditionally):
+**Step 2 — Check your cables** (always, unconditionally):
 
 ```bash
-pair associations
+pair cable list
 ```
 
-**Step 3 — If associations exist, read each associated project's journal** (mandatory for each one):
+**Step 3 — For each project on the far end of a cable, read its journal** (mandatory for each one):
 
 ```bash
-pair journal --from <prefix> --since 4h    # Run this for EVERY associated project
+pair journal --from <prefix> --since 4h    # Run this for EVERY cabled project
 ```
 
-Do not skip this. Do not defer it. The other project's agent may have changed an API, a schema, a shared contract — if you don't read their journal now, you will build on stale assumptions.
+Do not skip this. Do not defer it. The other session's agent may have changed an API, a schema, a shared contract — if you don't read their journal now, you will build on stale assumptions.
 
 **Step 4 — Act on what you read:**
 
@@ -581,7 +618,7 @@ A detailed step-by-step procedure with classification rules and report format is
 
 **General session entries** — use the standard tags (`task`, `decision`, `progress`, `blocker`) as described in the "Session journal" section above. These entries track your work for cross-session awareness: starting a task, making a decision, finishing a unit of work, or hitting a blocker.
 
-**Cross-project entries** — when your work directly affects an associated project, tag with the project prefix:
+**Cross-project entries** — when your work directly affects a cabled project, tag with the project prefix:
 
 | Trigger | Example |
 |---------|---------|
@@ -609,7 +646,7 @@ When you read another project's journal with `--from`, PaiR remembers the last e
 This gives both agents (and the human) a traceable chain of decisions across projects.
 
 ### Rules
-- **Never** run `pair associate` or `pair dissociate` without the user's explicit request — associations are deliberate decisions.
+- **Never** run `pair cable add` or `pair cable rm` without the user's explicit request — cables are deliberate decisions.
 - **Never** write in another project's journal — cross-project access is **read-only**. You write in your own journal, tagged with the other project's prefix.
 - **Never** spam the journal — if it doesn't cross the project boundary, it doesn't belong here.
 
@@ -664,7 +701,7 @@ AI events panel, and session focus (switch to the editor window where AI is work
 The `PreToolUse` hook automatically injects recent journal entries into Claude's context before every **Edit** or **Write** tool call. This means:
 
 - **Local journal**: entries from the last hour (or since last check) are shown
-- **Associated projects**: new entries since last check are shown
+- **Cabled projects**: new entries since last check are shown, for every project on the far end of a cable from your session
 - **Silent when empty**: no output if there's nothing new — zero noise
 
 This replaces the need for manual `pair journal --from <prefix>` reads during a session. The hook state is tracked in `.pair/.journal-hook-state` to only show the delta (new entries since last check).
@@ -705,11 +742,11 @@ pair children epic-a1b2                              # View progress
 
 ### Cross-project communication (end-to-end)
 
-Scenario: you work on **Project A** (associated with **Project B**). Project B changed an API endpoint.
+Scenario: you work on **Project A**, cabled to a session in **Project B**. Project B changed an API endpoint.
 
 ```bash
-# 1. Session start — check associated projects
-pair associations                                      # → project-b is linked
+# 1. Session start — check your cables
+pair cable list                                        # → cabled to a session in project-b
 pair journal --from project-b --since 4h               # → sees: "Changed GET /items to paginated response"
 
 # 2. You warn the user
