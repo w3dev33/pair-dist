@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.34.0] - 2026-08-13
+
+### Features
+- **Auto-open a session on an empty project** - `pair journal --push --to <project> --auto-open` creates a session in a project that has none, launches Claude and delivers the message as its opening prompt. The session is created through PaiR (not a raw tmux session) so it registers and becomes routable, and a reply target is stashed so the new agent's answer returns to the opener. Explicit flag on purpose: starting an agent is never a silent side effect of a plain push.
+- **`pair whoami`** - print the current session identity (id, name, project, runtime) in one call, with `--json` for scripts. Resolves even when the shell exposes neither `PAIR_TERMINAL` nor `$TMUX` (an agent's Bash tool) by matching the process ancestors against tmux pane pids.
+- **Remote-session cabling parity** - cable to LAN peer sessions with the same drag gesture as local ones. A cable to a peer that is offline stays visible in a degraded state (dimmed container, grey antenna, dashed edge) instead of disappearing, and becomes live again when the peer returns.
+- **Constrained-height Sessions panel** - the cross-project Sessions list gets the same constrained-height + expand toggle as the other sidebar lists (Projects, Favorites, Recent).
+
+### Fixes
+- **Session-to-session replies target the exact sender** - the delivered message is labelled with its emitter session (`[<session> · <type>]`), and a bare `pair journal --push` reply returns only to the session that messaged you, never fanning out to the other sessions of its project.
+- **Reliable Enter on injected messages** - the submit keystroke (`\r`) is now sent as a distinct event after a short delay across all injection paths (tmux, PTY, peer), so a message pushed to another session is validated instead of left sitting unsubmitted in a paste-aware TUI.
+- **Perceptible round-trip animation** - a reply arriving right after the outbound message now animates back distinctly on the cable, each direction held a minimum time instead of an imperceptible mid-loop flip.
+- **Favorites section keeps its collapsed state** across relaunches - its collapse key was per-project while registered global, so it was wiped on every boot and reopened each launch.
+
 ## [0.33.0] - 2026-08-11
 
 ### Features
