@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.35.0] - 2026-08-14
+
+### Features
+- **Unified agent attention across list, graph and terminal** - a session waiting for you now surfaces the same attention signal everywhere: the session list, the orchestration graph node, and the terminal tab share one state instead of each computing its own.
+
+### Fixes
+- **`pair` CLI now resolves in the terminal on Windows** - after install, the `pair` command is found both in PaiR's embedded terminal and in external shells. The sidecar was silently found only by the app itself (it sits next to the app binary, which Windows searches first), so the boot repair skipped copying the CLI to the PATH location terminals actually look in.
+- **Clearer graph readability** - improved node and text contrast in the graph view, and session nodes now visually distinguish their inserts from their outgoing links.
+
 ## [0.34.0] - 2026-08-13
 
 ### Features
