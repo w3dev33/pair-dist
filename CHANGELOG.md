@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.36.0] - 2026-08-19
+
+### Features
+- **Connection rails in the Sessions list** - the sidebar SESSIONS section now draws a colored rail between cabled sessions, so you see which sessions are wired together without opening the graph. Rails are grouped and colored per origin (the same stable color as the graph's cables, shared via `originColorMap`), the initiator end is a dot and the receiver end an arrow, and a rail animates green while a message travels the cable.
+
+### Fixes
+- **Cables no longer wiped on a window refresh** - the cable reconcile ran in the graph's `onMounted` before the terminal sessions were restored, so a refresh saw an empty live set and dropped every cable from the catalog. `reconcile` now bails on an empty live set and runs once from `index.vue` after the restore completes, with the true full live set.
+- **Graph edges stay anchored at any zoom** - the graph container is kept out of the app zoom factor (counter-zoom), so cable/binding edges anchor on their session handles instead of drifting when the app zoom isn't 100%. Cable edges also route around vertically-stacked projects with a distinct tower curve instead of crossing the node.
+- **Projects and Favorites collapse independently** - the Projects section reused the Favorites collapse key, so folding one folded the other in both directions. Projects now has its own `projectsCollapsed` key.
+- **`pair cable list --json` exposes the cable initiator** - the CLI JSON omitted `initiator` (and the project paths / `createdAt`) while the catalog and the app already had them; the output now matches the full cable shape.
+
 ## [0.35.0] - 2026-08-14
 
 ### Features
