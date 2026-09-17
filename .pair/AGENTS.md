@@ -24,6 +24,25 @@ To check: look for "AGENTS.md" in `~/.claude/CLAUDE.md`. If missing, propose add
 - If your session is cabled to sessions in other projects (`pair cable list`), follow the cross-project reading protocol from AGENTS.md
 ```
 
+### 3. Install ticketing/audit skills (bundled with PaiR)
+
+The ticketing workflow (and the orchestration roles) invoke slash commands: `/pair-create-issue`, `/pair-run-issue`, `/pair-close-issue`, `/pair-review-to-commit` (ticketing), plus `/pair-audit` (the solo quality rail used by the orchestration review role).
+
+**PaiR ships these skills embedded.** On every open it writes them to `.pair/commands/pair-*.md` (+ their helper scripts to `.pair/scripts/*.py`), versioned with the binary. To make them invocable as `/pair-*` slash commands, copy them ONE-TIME into the global Claude Code commands, exactly like installing the hooks:
+
+1. Copy `.pair/commands/pair-*.md` → `~/.claude/commands/` **only if the target does not already exist** (a machine that has the external `claude-code-toolkit` already provides equivalents — never overwrite them).
+2. Copy `.pair/scripts/*.py` → `~/.claude/scripts/` (same "only if absent" rule) and `chmod +x` them.
+3. Do this **with the user's consent**, one-time. Each skill carries a `pair-version` frontmatter: if it differs from the running app version, offer to re-copy (drift on a version bump).
+
+This keeps PaiR self-sufficient (the critical path works on a machine without the toolkit) while never clobbering a user's existing global commands.
+
+**If you cannot install them, fall back to the raw `pair` CLI and the project scripts:**
+
+- Create an issue → `pair create "Title" -t task -d "Details"`
+- Start work → `pair update <id> -s in_progress`
+- Comment / close → `pair comments add <id> "..."` then `pair update <id> -s closed`
+- Quality gate → run the project's test/build scripts directly instead of `/pair-audit`
+
 ## How to work with PaiR
 
 **These are not suggestions — they are part of your workflow.** The human using this project expects you to track your work through PaiR, just like you would use git for version control.
@@ -504,6 +523,7 @@ When the user asks you (in any language) to communicate something to other sessi
 | "tell X to do …" / "have X run …" | `pair journal --push action "…" --to X` |
 | "tell everyone on project P …" | `pair journal --push info "…" --to P` |
 | "tell X and Y …" | `pair journal --push info "…" --to X --to Y` |
+| "message a project that has **no live session** / open one there and tell it …" | `pair journal --push info "…" --to P --auto-open` (creates **and** cables) |
 | "log that …" / "write in your journal that …" / "note that …" | `pair journal "…" --tags status` (no push) |
 
 | "connect with X" / "cable yourself to X" / "wire us to X" | `pair cable add <X>` |
@@ -519,6 +539,10 @@ Notes:
 - **The recipient must be cabled to you.** The cable is the permission, the `--to`
   is the address. If it isn't, the command says so and tells you to run
   `pair cable add <X>` — it never delivers silently to someone else.
+- **Creating a session to communicate = `--auto-open`, never bare `session open`.**
+  `pair session open <P>` is the raw create primitive and leaves the new session
+  **uncabled** (it cannot reply). When the intent is to talk to it, use
+  `pair journal --push --to <P> --auto-open "…"`, which creates and cables in one go.
 - The journal entry is recorded even when delivery is refused: the local trace is
   kept, only the delivery failed.
 - `info` is the safe default. Use `attente` only when the user is explicitly waiting on something. Use `action` only when they're asking the recipient to actively do something.
@@ -568,6 +592,42 @@ A session id also works.
 
 Scope: sessions running under tmux or herdr. A plain PTY session exists only in
 the running app and cannot be cabled from the CLI.
+
+### `session open` : open a new agent session (pair-1shw.2)
+
+```bash
+pair session open scripteasy-v4 --json                    # → {"sessionId":"pty-…", …}
+pair session open scripteasy-v4 --message "You are the coder for pair-2cks…"
+```
+
+Opens a **new** session in a project and prints its id (`--json` →
+`{sessionId, project, runtime}`). Unlike `--auto-open` (which only opens when the
+project has **no** live session, and returns nothing), `session open` **always**
+creates a new session (several agents can run in one project) and **returns the
+id**. It is the RAW create primitive: the new session is **not cabled** to you, so
+it **cannot reply** until you wire it (`pair cable add <id>`) or message it with
+`--to <id>` (cabled on the fly). To create a session *in order to talk to it*, do
+not use `session open` alone: prefer `pair journal --push --to <project> --auto-open
+"…"`, which creates **and** cables in one step. With `--message`, that text is
+delivered as the session's opening prompt once the agent is actually ready. Starting
+an agent is deliberate: never a silent side effect.
+
+### `session list` / `session close` — inspect and tear down sessions (pair-14kh)
+
+```bash
+pair session list                                         # live routable sessions (name, project, runtime)
+pair session close "test-suite-project coder"      # DETACH: the tmux/herdr session persists
+pair session close <id|name> --kill                       # KILL: destroy the tmux/herdr server too
+pair session kill <id|name>                               # alias for `close --kill`
+```
+
+`session close` is the scriptable inverse of `session open`. It runs the same close
+path as the UI cross, so the sidebar and the cable graph refresh and the session's
+cables are purged (no ghost edges). By default it **detaches** a tmux/herdr session
+(it persists and can be restored); `--kill` (or the `kill` alias) **destroys** the
+server. A PTY session is always fully closed (it can't persist). Closing the session
+that issues the command is refused. Use `--kill` to tear down every session an
+orchestration spawned when it reaches a terminal state.
 
 **Do not confuse the three channels:**
 
@@ -635,7 +695,7 @@ Do not skip this. Do not defer it. The other session's agent may have changed an
 
 **This protocol is not a one-time action.** You must re-read journals at key moments during the session — see "Cross-project awareness — stay in sync" above.
 
-A detailed step-by-step procedure with classification rules and report format is available in `.pair/commands/cross-project.md`.
+The cross-session messaging that powers this protocol (cabling + `pair journal --push --to`) is documented in the messaging section above. A detailed step-by-step `/cross-project` procedure also ships with the external `claude-code-toolkit` when installed (optional; PaiR does not bundle it).
 
 ### When to write a manual journal entry
 

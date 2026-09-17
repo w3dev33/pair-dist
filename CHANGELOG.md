@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.39.0] - 2026-09-17
+
+### Features
+- **Multi-agent orchestration (experimental)** - still under active design and not guaranteed to work end to end yet: the concept is in place, the reliability is not proven. Treat it as a preview, not a production feature. A single issue can be worked by a team of Claude sessions that hand off to each other automatically. A Rust engine drives a deterministic state machine with per-role permission enforcement, running a coder / review / supervisor / finalizer cycle. You keep one human gate: the merge is a green light you approve or reject, guarded against bypass. The reviewer anchors its verdict on an executed `/audit` (not just a read), routing auto-advances on pass/fail, and a watchdog escalates a stalled or dead role to the PM. Model and effort are configurable per role (token lever). Driven from the CLI (`pair orchestrate start/stop/advance/gate/verdict/status`) with an observable control panel and the graph to watch it live. Orchestrations resume at boot and support pause/resume. Ships with the ticketing/audit skills embedded so roles can create, run and close issues.
+- **Named sessions with real cabling** - `pair session open/close/kill/list` opens, wires and tears down sessions cleanly. `--auto-open` cables the emitter to the session it opens, so a pushed message can start an agent and route its reply back.
+- **PTY sessions are enumerable and cablable** - terminal (PTY) sessions now appear in the session registry and can be cabled like any other session.
+- **Parallel terminal runtime choice** - pick the runtime for a session, and the terminal PTY inherits the app's network grant so LAN access works from within it.
+- **Peer-to-peer direct messages** - DM between peers, with the DM tab hidden when there is no peer to talk to.
+- **macOS local-network permission declaration** - the app now ships an `NSLocalNetworkUsageDescription` and a Bonjour `_pair._tcp` service declaration, so macOS shows a clear one-time local-network permission prompt (peer discovery, LAN sync, reaching project servers) instead of silently failing under Local Network Privacy.
+
+### Fixes
+- **No longer requests camera/microphone permission on Linux** - the `devicechange` listener that recovers from a dead audio sink is now macOS-only, so WebKitGTK no longer raises a camera prompt just for subscribing to it (GitHub #5).
+- **Cable mutations reflected in the graph** - a cable created or removed app-side now updates the graph immediately.
+- **Deterministic auto-open cabling** - the auto-open path no longer fails silently to cable the emitter to the opened session.
+- **Fullscreen terminal content restored on reload** - reopening a fullscreen terminal after a reload keeps its content instead of coming back empty.
+- **CLI install falls back to `~/.local/bin`** - when `/usr/local/bin` is not writable, the `pair` CLI installs to `~/.local/bin` instead of failing.
+- **Session close refreshes the sidebar** - closing a session from the CLI now refreshes the sidebar immediately.
+
 ## [0.36.0] - 2026-08-19
 
 ### Features
