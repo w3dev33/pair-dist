@@ -29,7 +29,8 @@ The `pair` CLI is bundled with the application and a symlink is created automati
 ### Core
 - **Multi-project dashboard** — All your projects in one window, with real-time updates, charts, and per-project settings
 - **Built-in CLI** — `pair` ships with the app. Full issue lifecycle from the terminal: create, update, close, pin, comment, attach, search
-- **Git-synced** — Issues live in `.pair/` inside your repo, tracked by git, visible to humans and AI agents alike
+- **Git-synced**: Issues live in `.pair/` inside your repo, synced on a dedicated orphan branch: the same tickets from any branch of the project, for humans and AI agents alike
+- **Ready-made harness**: Slash commands for Claude Code to create, run, review, commit and close an issue, plus a quality audit. The Python scripts behind them (tests, build, closing) run outside the model and work with any agent. Installed with PaiR, set up by the agent on first use (requires Python)
 
 ### Issue Management
 - **Epics & children** — Parent/child hierarchy with ordered subtasks
@@ -41,7 +42,7 @@ The `pair` CLI is bundled with the application and a symlink is created automati
 
 ### Integrated Terminal
 - **Multi-session terminals** — Run multiple terminal sessions per project with a tabbed interface, directly inside PaiR. No need to switch to an external terminal
-- **tmux mode** — Persistent sessions that survive app restarts. Access your sessions from any external terminal (Zed, iTerm, VS Code) via `tmux attach`. Sessions are automatically named after issue IDs
+- **tmux mode**: Persistent sessions that survive app restarts. Join a session from any terminal via `tmux attach` (the session badge copies the command). Sessions are automatically named after issue IDs
 - **Smart session close** — Detects when a tmux session is attached in another terminal and warns before killing. Defaults to detach when used elsewhere, so your external terminal keeps working
 - **Launch AI from issues** — Click Play on any issue to open a terminal tab and start Claude Code with `/run-issue` automatically. Closing an issue automatically closes its terminal session
 - **Split view** — Pin tabs to display terminals side by side. A built-in multiplexer experience for monitoring several AI sessions in parallel
@@ -49,9 +50,9 @@ The `pair` CLI is bundled with the application and a symlink is created automati
 - **AI Text Transform** — Transform text in any input field using AI: reformulate, translate, or summarize. Works with any Claude subscription
 
 ### AI Integration
-- **AI-native workflow** — Designed for AI coding assistants (Claude Code, Cursor, Codex, Gemini CLI). AI agents use the CLI to manage issues autonomously
+- **AI-native workflow**: Claude Code, Codex, Mistral or others: AI agents use the CLI to manage issues autonomously, and talk to each other through a shared channel, even from a sandbox. Agents with hooks (Claude Code, Codex) also show their activity live
 - **Live activity tracking** — AI activity LED per project, events panel (⌘⇧A), focus AI session window (⌘⇧F)
-- **Sound alerts** — Per-project notification sounds when AI agents interact with your issues. Internal sessions (PaiR terminal) get visual tab alerts, external sessions (Zed, Cursor, VS Code) get toast notifications
+- **Sound alerts**: Per-project notification sounds when AI agents interact with your issues, with visual tab alerts on the PaiR terminal sessions
 - **Real-time push** — CLI mutations and AI events pushed instantly via Unix socket
 
 ### Activity Journal
@@ -70,6 +71,7 @@ The `pair` CLI is bundled with the application and a symlink is created automati
 ### Sync & Collaboration
 - **GitHub / GitLab sync** — Bidirectional issue sync with external providers, comment push/pull
 - **Conflict resolution** — Detects and resolves merge conflicts when multiple collaborators edit the same issue
+- **Secure by default**: Peers are identified by their pinned certificate, repeated failed attempts are blocked, updates are checked for host and integrity, messages injected into a terminal are sanitized, and the local socket is reserved to your user
 
 ### Cross-platform
 - macOS, Linux, Windows — with dark, light, flat, and neon themes
@@ -78,14 +80,14 @@ The `pair` CLI is bundled with the application and a symlink is created automati
 
 PaiR is inspired by [Beads](https://github.com/steveyegge/beads), the AI-native issue tracker created by Steve Yegge, which stores issues directly in the codebase using a SQLite + JSONL structure. Our first take was [Beads Task-Issue Tracker](https://github.com/w3dev33/beads-task-issue-tracker), a desktop app built as a frontend for the existing Beads CLIs (`bd`, `br`). But as those CLIs evolved in diverging directions — Dolt migration, server mode, breaking changes — depending on external tools became a liability. PaiR was built from scratch with its own CLI, its own schema, and its own features to move at its own pace.
 
-Beads compatibility (import of an existing `.beads/` directory) was removed in the current version — PaiR now stands entirely on its own engine. Releases published before that change remain available and still perform the one-way import, for anyone who still needs to bring an old Beads project over:
+Beads compatibility (import of an existing `.beads/` directory) was removed in v0.40: PaiR now stands entirely on its own engine. To bring an old Beads project over, use a release up to [v0.39](https://github.com/w3dev33/pair-dist/releases/tag/v0.39.0), which still performs the one-way import:
 
 - **`bd`** (Go) projects up to version 0.49.x (before the Dolt migration)
 - **`br`** ([beads_rust](https://github.com/Dicklesworthstone/beads_rust)) projects up to version 0.1.20+
 
 ## For AI agents
 
-PaiR is designed to be driven by AI coding assistants (Claude Code, Cursor, Codex, Gemini CLI, etc.). The `pair` CLI is bundled — agents use it to manage issues, and the app reflects every change in real time.
+PaiR is designed to be driven by AI coding assistants (Claude Code, Codex, Mistral and others). The `pair` CLI is bundled: agents use it to manage issues, and the app reflects every change in real time.
 
 ### Setup
 

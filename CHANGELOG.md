@@ -12,7 +12,7 @@
 
 ### Changes
 - **Beads compatibility and the legacy tracker mode are removed** - the tracker always lives on its orphan branch in `.pair/`. To import a Beads project, use a release up to v0.39.
-- **External terminal sessions are no longer tracked** - PaiR follows the sessions it runs (tmux, herdr); the per-process registry of Claude sessions in external terminals and editors is gone.
+- **External terminal sessions are no longer tracked** - PaiR follows the sessions it runs itself (its built-in PTY terminals, tmux, herdr); the per-process registry of Claude sessions in external terminals and editors is gone.
 - **Refactoring** - the network subsystem and `bin/pair.rs` are split into modules, `index.vue` is broken down into composables and components, and `vue-tsc` reports zero errors (three latent bugs fixed on the way).
 
 ### Fixes
