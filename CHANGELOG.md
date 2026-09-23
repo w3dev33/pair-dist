@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.40.0] - 2026-09-23
+
+### Features
+- **Agents beyond Claude Code** - a shared file-bus channel lets sandboxed agents (Codex first) message other sessions when the socket is out of reach, with honest delivery acks. Codex activity is observed through its own hooks (`pair hook`, `.codex/hooks.json` merged, never overwritten) and routed into the session state machine.
+- **Security hardening** - peer certificates are pinned on the validated fingerprint and a handshake can no longer change a remembered one; failed peer authentications are bounded per source address; updates are checked for host and integrity (published SHA256 sums) before install; the IPC socket and its folder are reserved to their owner; every message injected into a terminal session is sanitized, and multi-line command proposals are refused.
+- **Copy the tmux attach command** from a session badge.
+- **Stricter CLI** - `--status`, `--type` and `--priority` are validated against the app's own lists, so an invalid value is refused instead of being stored and silently shown as `open`.
+- **Orchestration** - role prompts in English and models referenced by alias, so the roles follow the latest Claude models.
+- **Single router to sessions** - every message to a session goes through one transport path.
+
+### Changes
+- **Beads compatibility and the legacy tracker mode are removed** - the tracker always lives on its orphan branch in `.pair/`. To import a Beads project, use a release up to v0.39.
+- **External terminal sessions are no longer tracked** - PaiR follows the sessions it runs (tmux, herdr); the per-process registry of Claude sessions in external terminals and editors is gone.
+- **Refactoring** - the network subsystem and `bin/pair.rs` are split into modules, `index.vue` is broken down into composables and components, and `vue-tsc` reports zero errors (three latent bugs fixed on the way).
+
+### Fixes
+- **Session states** - "your turn" and "the agent is blocked" are now distinct, the waiting state is red again, AI activity is readable and ghost sessions stop.
+- **Network** - typing indicators left unanswered expire, an auto-accepted pairing leaves no clickable prompt behind, and the stop channel is set atomically.
+- **The `pair` CLI now installs a logger** - its `log::` calls were silently dropped.
+- **Attachments** - paths are compared by components and file operations run on the canonical path the guard computed.
+
 ## [0.39.0] - 2026-09-17
 
 ### Features

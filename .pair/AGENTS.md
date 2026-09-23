@@ -5,24 +5,50 @@ The PaiR app monitors AI activity in real-time — every CLI call you make is re
 
 ## First-time setup
 
-**On your first session in this project, check these two things:**
+**On your first session in this project, run these checks.** Some steps are
+**host-specific**: identify which agent you are running as (Claude Code, Codex, …)
+and apply the parts that name your host.
 
 ### 1. Hooks
-Check if PaiR notification hooks are installed. They enable real-time notifications in PaiR: sound alerts, visual indicators, and AI activity tracking.
+Check if PaiR notification hooks are installed. They enable real-time observation in PaiR: sound alerts, visual indicators, and AI activity tracking. **Hooks are host-specific** — set up the ones for your host:
 
-To check: look for `pair notify` entries in `~/.claude/settings.json` (global) or `.claude/settings.json` (project-level) under `"hooks"`.
+- **Claude Code**: look for `pair notify` entries in `~/.claude/settings.json` (global) or `.claude/settings.json` (project-level) under `"hooks"`. If missing, offer to install them by adding the hooks configuration listed in the "Claude Code hooks configuration" section below.
+- **Codex (OpenAI)**: run `pair hook --install --global` (MERGES into `~/.codex/hooks.json`, preserving any hooks you already configured, and calls the stable `pair hook <Event>`). Global is the one-time setup that applies to **every** project — it mirrors Claude's global `~/.claude`, so you never drop a `.codex/` in each repo (each hook resolves its project from the cwd). Use `pair hook --install` (no `--global`) only for a project-specific override. Then open Codex's `/hooks` and mark them trusted — unapproved hooks are ignored, and a running session only picks them up after a restart. In CI, start Codex with `--dangerously-bypass-hook-trust`.
 
-If missing, offer to install them by adding the hooks configuration listed in the "Claude Code hooks configuration" section below. This is a one-time setup — once installed, every action you take will be visible in the PaiR app.
+This is a one-time setup — once installed, every action you take is visible in the PaiR app.
 
-### 2. AGENTS.md awareness
-Check that `~/.claude/CLAUDE.md` (global) contains a reference to `.pair/AGENTS.md`. This ensures every Claude session on any PaiR project reads this file and follows the workflow — especially the cross-project communication protocol.
+### 2. AGENTS.md awareness (host-aware router)
+Your host's **global** config must point every future session at this file, so the
+PaiR workflow (and the cross-project communication protocol) loads automatically.
+The pointer is what makes a session read `.pair/AGENTS.md` at all — it lives in
+your host's global config, not here, and the protocol stays single-sourced in this
+file (the pointer never duplicates it).
 
-To check: look for "AGENTS.md" in `~/.claude/CLAUDE.md`. If missing, propose adding:
+**Identify your host and use its row** (you know which agent you are):
+
+| Host | Global config to check / update |
+|------|---------------------------------|
+| Claude Code | `~/.claude/CLAUDE.md` |
+| Codex (OpenAI) | `~/.codex/AGENTS.md` |
+| other | your agent's always-loaded global instructions file |
+
+Codex does **not** discover `.pair/AGENTS.md` on its own: its native convention
+only reads an `AGENTS.md` at the repo root or `~/.codex/AGENTS.md`, walking up from
+the cwd — it never descends into `.pair/`. This pointer is what bridges that gap
+(Claude relies on the same mechanism via `~/.claude/CLAUDE.md`).
+
+To check: look for "`.pair/AGENTS.md`" in your host's file above. If missing,
+propose adding this pointer (adapt the block to your file, keep the intent):
 ```markdown
 ## PaiR — Cross-project awareness
-- If `.pair/AGENTS.md` exists in the project, read it at session start
-- If your session is cabled to sessions in other projects (`pair cable list`), follow the cross-project reading protocol from AGENTS.md
+- When working in a project that has a `.pair/AGENTS.md` file, read it at session
+  start and follow its workflow (run the first-time setup on first contact).
+- If your session is cabled to sessions in other projects (`pair cable list`),
+  follow the cross-project reading protocol from that file.
 ```
+Once the pointer is in your global config, future sessions load PaiR automatically
+— no paste needed. Until then, a session starts from the one-time prompt "Read
+`.pair/AGENTS.md` and run the first-time setup".
 
 ### 3. Install ticketing/audit skills (bundled with PaiR)
 
@@ -142,33 +168,22 @@ Before closing any parent issue, **inventory its children first** — never clos
 ### Always
 
 - **Never ignore `.pair/`** — it is the project's issue tracker, not a temp folder
-- **Commit `.pair/issues.jsonl` separately** from code changes (legacy mode only — see "Storage modes" below)
 - **Check for related issues** before creating duplicates: `pair search "keyword"`
 
-### Storage modes
+### Storage layout
 
-PaiR supports two storage layouts for `.pair/`. The mode is auto-detected at boot; both behave the same from a CLI standpoint.
+`.pair/` is a worktree of the tracker orphan branch (`pair-tracker` by default; the name is configurable per project via `pair config set tracker.branch <name>`). When the user opts out of "Track issues in git" at project creation, `.pair/` stays a plain, git-ignored directory holding a purely local tracker — the CLI behaves identically either way.
 
-**Legacy mode** — `.pair/` is a plain directory tracked on the current code branch.
-- Tickets visible in `git status` whenever they change.
-- Switching code branches changes the tracker content (tickets appear / disappear).
-- Tracker conflicts can occur when merging code branches.
-- **Workflow rule**: always commit `.pair/` changes in a separate commit from code (`chore(pair): update issues`). Don't mix.
-
-**Migrated mode** — `.pair/` is a worktree of the tracker orphan branch (`pair-tracker` by default; the name is configurable per project via `pair config set tracker.branch <name>`).
 - The tracker lives on a dedicated branch with no code; the worktree mounts it transparently at `.pair/`.
 - `.pair/` is gitignored on every code branch and never appears in code-branch `git status`.
 - Switching code branches no longer affects tickets.
-- The separate-commit workflow rule no longer applies — there's nothing to commit on the code branch.
-- **Workflow rule** (translated from "two separate commits" to "two separate pushes"): if the user opted into "Track issues in git" (i.e. `.pair/` is a real git worktree, not just a local SQLite store), the tracker branch must be pushed **before** the code branch so tickets are backed up to the remote and GitHub proposes the code branch (the last one pushed) by default when opening a PR. Two commands, in order:
+- The tracker is never committed on a code branch, so there is nothing to keep separate there.
+- **Workflow rule**: if the user opted into "Track issues in git" (i.e. `.pair/` is a real git worktree, not just a local SQLite store), the tracker branch must be pushed **before** the code branch so tickets are backed up to the remote and GitHub proposes the code branch (the last one pushed) by default when opening a PR. Two commands, in order:
   ```bash
   git -C .pair push          # tracker branch FIRST (best-effort; resolve the configured name with `pair config get tracker.branch` if unsure; first time: git -C .pair push -u origin <tracker-branch>)
   git push                   # code branch LAST — stays the most recently pushed so GitHub proposes it for PRs
   ```
   Detection: if `git -C .pair rev-parse HEAD` fails or `.pair/` is not a git worktree, the user did not opt into git tracking — skip the tracker push silently and just `git push` the code branch. Otherwise, if the tracker push fails (no remote, network, etc.), report and continue with the code push — the code push is the source of truth.
-- Migration is one-way through the in-app dialog (or `pair migrate-tracker`); a backup tag is created so the migration can be rolled back in-session.
-
-**How to tell which mode the current project uses**: at boot, the native log (`~/Library/Logs/com.pair.app/pair.log`) prints `worktree mounted` (migrated) or `staying in legacy mode` (legacy). Identical in dev and prod.
 
 ---
 
@@ -208,11 +223,11 @@ Supported keys:
 
 | Key | Default | Description |
 |-----|---------|-------------|
-| `tracker.branch` | `pair-tracker` | Name of the orphan branch hosting `.pair/` content. Set this **before** `pair migrate-tracker` (or before pushing the orphan branch for the first time) so the right branch is created. Useful when several contributors will push their tracker on the same repo — each user can keep their tracker on a personal branch (`pair-tracker-<username>`) without colliding. |
+| `tracker.branch` | `pair-tracker` | Name of the orphan branch hosting `.pair/` content. Set this **before** pushing the orphan branch for the first time so the right branch is created. Useful when several contributors will push their tracker on the same repo — each user can keep their tracker on a personal branch (`pair-tracker-<username>`) without colliding. |
 
 Validation: branch names must match `^[A-Za-z0-9._/-]+$`, no leading `-` or `/`, no `..`, no `//`, no spaces. Empty values are rejected (use `unset` to revert).
 
-If a remote `origin` is configured at migration time and the resolved branch is still the default, PaiR logs a hint with the suggested personalized name (`pair-tracker-<owner>` parsed from the remote URL).
+If a remote `origin` is configured when the tracker branch is created and the resolved branch is still the default, PaiR logs a hint with the suggested personalized name (`pair-tracker-<owner>` parsed from the remote URL).
 
 ### `list` — List issues
 
@@ -266,7 +281,7 @@ pair create "Add dark mode" \
 |------|-------|-------------|
 | `--description` | `-d` | Issue body/description |
 | `--type` | `-t` | Issue type: `task`, `bug`, `feature`, `epic`, `chore`, `spec`, `campaign` |
-| `--priority` | `-p` | Priority: `p0`, `p1`, `p2`, `p3` |
+| `--priority` | `-p` | Priority: `p0`, `p1`, `p2`, `p3`, `p4` |
 | `--assignee` | | Assignee name |
 | `--labels` | `-l` | Comma-separated labels |
 | `--parent` | | Parent issue ID (for sub-tasks) |
@@ -276,6 +291,11 @@ pair create "Add dark mode" \
 | `--notes` | | Additional notes |
 | `--external-ref` | | External reference (URL, Redmine ID) |
 | `--spec-id` | | Spec ID |
+
+> **Enumerated values are validated.** `--status`, `--type` and `--priority`
+> accept only the values listed here. An unknown value is **rejected with an
+> error listing what is accepted**; it is never stored as-is and never silently
+> rewritten. `-p 2` is accepted as a shorthand for `-p p2`.
 
 ### `update <id>` — Update an issue
 
@@ -437,9 +457,13 @@ Relations are non-blocking links between issues (unlike `dep` which is for block
 
 ```bash
 pair relate <id1> <id2>                        # Default type: relates-to
-pair relate <id1> <id2> --type relates-to      # Explicit type
+pair relate <id1> <id2> --type duplicates      # Explicit type
 pair unrelate <id1> <id2>                      # Remove relation
 ```
+
+Accepted `--type` values, for `relate` as well as `dep add`: `blocks`,
+`relates-to`, `related`, `discovered-from`, `duplicates`, `supersedes`,
+`caused-by`, `replies-to`. Anything else is rejected with an error.
 
 ### `sync-external` — Sync issues from an external provider
 
@@ -466,13 +490,6 @@ Use `sync-repo` to point to a different repo than the git remote (e.g., a public
 |------|-------------|
 | `--full` | Force full sync (ignore last sync timestamp) |
 | `--dry-run` | Preview what would be synced without writing |
-
-### `migrate` — Migrate from .beads to .pair
-
-```bash
-pair migrate                    # Import issues from .beads/ into .pair/
-pair migrate --force            # Overwrite existing .pair/ data
-```
 
 ### `notify` — Send notifications to the PaiR app
 
@@ -536,6 +553,12 @@ Notes:
   several recipients. A push with no recipient is **refused**: without one it used
   to reach every session of every associated project, which is exactly the message
   duplication this removed.
+- **`<X>` must be a real session name, id, or project** (case is ignored — names
+  resolve case-insensitively — but it is not fuzzy: a different word is a different
+  target). An unknown name is **reported, not delivered**: the result names the live
+  sessions, e.g. `recipient not routed (NotFound("PaiR 9")); live sessions: [PaiR 1,
+  PaiR 2]`. When unsure of a name, list it first with `pair cable list` (your
+  cables) or `pair whoami` (yourself).
 - **The recipient must be cabled to you.** The cable is the permission, the `--to`
   is the address. If it isn't, the command says so and tells you to run
   `pair cable add <X>` — it never delivers silently to someone else.
@@ -545,6 +568,12 @@ Notes:
   `pair journal --push --to <P> --auto-open "…"`, which creates and cables in one go.
 - The journal entry is recorded even when delivery is refused: the local trace is
   kept, only the delivery failed.
+- **This works from any runtime, sandboxed or not — you do nothing special.** Just
+  run `pair journal --push --to <name>`. If your agent runs in a sandbox that
+  blocks local IPC (no socket / no `~/Library`, e.g. Codex), the CLI transparently
+  routes over an on-disk bus in `<project>/.pair/` that the app drains, and you
+  still get a real delivery result (`Delivered to: X`, or the not-routed error
+  above). No hooks, no config, no awareness of the transport required on your side.
 - `info` is the safe default. Use `attente` only when the user is explicitly waiting on something. Use `action` only when they're asking the recipient to actively do something.
 - This is distinct from your own automatic state reporting (which also uses `journal --push` at key milestones — see the "Session journal" section above). The difference is **who initiated** : here it's the user asking you to convey a message ; in the automatic case it's you proactively reporting your state.
 
@@ -639,6 +668,42 @@ orchestration spawned when it reaches a terminal state.
 
 Cabling does **not** start a conversation. It declares who may talk to whom;
 saying something still goes through `journal --push`.
+
+### `orchestrate` — Run a ticket through a role workflow (pair-1shw.6.2)
+
+```bash
+pair orchestrate start <id>               # spawn a project-manager session on the ticket
+pair orchestrate start <id> --mutate-initiator   # turn THIS session into the manager instead
+pair orchestrate status <id>              # current state, stepper, artifacts, pending gate
+pair orchestrate advance <id>             # move to the next workflow state
+pair orchestrate advance <id> --to <state>       # move to an explicit state
+pair orchestrate verdict <id> pass        # record the current step's verdict (or `fail`)
+pair orchestrate gate <id> approve        # approve the gate guarding the current state
+pair orchestrate stop <id>                # kill the orchestration's sessions, purge its log
+```
+
+An orchestration walks a ticket through roles (manager, coder, reviewer...), each
+role running in its own session, lazily spawned as the workflow advances. The state
+is rebuilt from a durable log, so `status` tells the truth rather than a guess, and
+it works with no app running.
+
+**Read `status` before acting.** It names the current state, the artifacts produced
+so far, and the gate requirements still missing. A bare `advance` cannot cross a
+gated state, so guessing wastes a round trip.
+
+`start` spawns a FRESH manager session and merely cables the initiating session to
+it: your session is never taken over. Use `--mutate-initiator` only from a session
+opened specifically to orchestrate.
+
+**The engine never touches git.** No commit, no remote update, no issue closing --
+not even when the merge gate is approved. Approving that gate is a GO-AHEAD, nothing
+more: at finalisation the coder aligns docs and maps but commits nothing. The human
+finalises from the supervisor session, through the review-to-commit skill. An agent
+that commits on its own breaks this contract.
+
+Each `verdict` produces the artifact its step expects (a diff at implementation, a
+test report at test, a review at review), which is what lets the merge gate be
+satisfied. `stop` tears the whole thing down, sessions included.
 
 ### `catalog` — Global project catalog
 
