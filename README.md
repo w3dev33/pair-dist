@@ -2,19 +2,23 @@
 
 <p align="center"><a href="https://pair.w3dev.fr"><img src="https://img.shields.io/badge/Visit_Website-4a90d9?style=for-the-badge&logo=globe&logoColor=white" alt="Visit Website"></a></p>
 
-A lightweight desktop application for managing tasks and issues directly inside your codebase.
+PaiR is your second brain as a developer: a desktop app and a CLI that keep your issues, their links, the journal of your work and your git history in one place, right inside your project.
 
-PaiR ships with its own CLI (`pair`) — no external tool to install. The CLI manages issues across multiple independent projects, and the application aggregates them all in a single window, updated in real time. The CLI does the heavy lifting — AI agents use it to create, update, and close issues programmatically — while the app gives you a unified view and control over everything. Issues live in your project directory, tracked by git, and visible to both humans and AI agents.
+Your AI agents use the `pair` CLI to create, update and close issues while you watch, live, in the app's integrated terminals. Everything stays on your machine: no account, no cloud, no telemetry.
 
 ## Why PaiR?
 
-AI-assisted development is moving fast. Multi-agent orchestration, autonomous task management, swarms of AI workers — the tools are impressive, but they're racing ahead of most developers' reality.
+AI-assisted development is moving fast. Multi-agent orchestration, autonomous task management, swarms of AI workers.
+The tools are impressive, but they're racing ahead of most developers' reality.
 
-We believe the transition to AI autonomy should be progressive. Today, most developers work **with** AI — pair programming, reviewing suggestions, steering decisions. They need to see what's happening, understand it, and stay in control. Jumping straight to full autonomy means losing the ability to learn, verify, and course-correct.
+I believe the transition to AI autonomy should be progressive. Today, most developers work **with** AI: pair programming, reviewing suggestions, steering decisions.
+They need to see what's happening, understand it, and stay in control. Jumping straight to full autonomy means losing the ability to learn, verify, and course-correct.
 
-PaiR is built for this transition. Start with pair programming — one human, one AI, full visibility. As trust builds, delegate more. But at every step, you can see what's going on, step in, and redirect. It's not just a workflow — it's a learning process.
+PaiR is built for this transition. Start with pair programming: one human, one AI, full visibility.
+As trust builds, delegate more. But at every step, you can see what's going on, step in, and redirect.
+It's not just a workflow, it's a learning process.
 
-The name says it all: **PaiR** — the human and the AI, working side by side.
+The name says it all: **PaiR**, the human and the AI working side by side.
 
 ## Installation
 
@@ -22,132 +26,67 @@ Download PaiR for macOS, Linux and Windows:
 
 [![Download PaiR](https://img.shields.io/badge/Download_PaiR-macOS_·_Linux_·_Windows-28a745?style=for-the-badge&logo=download&logoColor=white)](https://pair.w3dev.fr)
 
-The `pair` CLI is bundled with the application and a symlink is created automatically during installation, making it available from any terminal.
+The `pair` CLI is bundled with the app and made available in your terminal during installation.
 
-## Features
+## What PaiR gives you
 
-### Core
-- **Multi-project dashboard** — All your projects in one window, with real-time updates, charts, and per-project settings
-- **Built-in CLI** — `pair` ships with the app. Full issue lifecycle from the terminal: create, update, close, pin, comment, attach, search
-- **Git-synced**: Issues live in `.pair/` inside your repo, synced on a dedicated orphan branch: the same tickets from any branch of the project, for humans and AI agents alike
-- **Ready-made harness**: Slash commands for Claude Code to create, run, review, commit and close an issue, plus a quality audit. The Python scripts behind them (tests, build, closing) run outside the model and work with any agent. Installed with PaiR, set up by the agent on first use (requires Python)
+### A second brain for your projects
+- **Issues of every kind**: tasks, bugs, features, chores, specs, campaigns and epics, so your ideas and reference documents live next to your work
+- **Links between issues**: parent and children, dependencies (blocked by / blocks), custom relations
+- **Details that stay**: descriptions, comments, labels and attachments (images, Markdown, PDF)
+- **A long-term journal**: every project keeps a record that fills itself (issues, status changes, comments, commits) and where you can note decisions
+- **Git-synced**: issues live in `.pair/` inside your repo, on a dedicated orphan branch, so you see the same issues from any branch of the project
 
-### Issue Management
-- **Epics & children** — Parent/child hierarchy with ordered subtasks
-- **Dependencies** — Blocks/blocked-by relationships with visual indicators
-- **Pinned issues** — Pin important issues for quick access — stored in the DB, synced via git, with undo support (⌘Z)
-- **Specs & campaigns** — Dedicated dashboard sections for specifications and ongoing tracking
-- **Attachments** — Images, markdown, and PDF files attached to issues, previewed in-app
-- **Full-text search** — FTS5-powered search across titles, descriptions, and notes
+### Dashboard and issues
+- **Multi-project dashboard**: all your projects in one window, updated in real time
+- **Quick access**: pinned issues, cross-project favorites, last edits, dedicated sections for specs and campaigns
+- **Full-text search** across titles, descriptions, notes, comments and labels
 
-### Integrated Terminal
-- **Multi-session terminals** — Run multiple terminal sessions per project with a tabbed interface, directly inside PaiR. No need to switch to an external terminal
-- **tmux mode**: Persistent sessions that survive app restarts. Join a session from any terminal via `tmux attach` (the session badge copies the command). Sessions are automatically named after issue IDs
-- **Smart session close** — Detects when a tmux session is attached in another terminal and warns before killing. Defaults to detach when used elsewhere, so your external terminal keeps working
-- **Launch AI from issues** — Click Play on any issue to open a terminal tab and start Claude Code with `/run-issue` automatically. Closing an issue automatically closes its terminal session
-- **Split view** — Pin tabs to display terminals side by side. A built-in multiplexer experience for monitoring several AI sessions in parallel
-- **Smart notifications** — When an AI agent running inside PaiR needs your attention, the terminal tab flashes and turns red with a sound alert. Click the notification to jump directly to the right tab
-- **AI Text Transform** — Transform text in any input field using AI: reformulate, translate, or summarize. Works with any Claude subscription
+### Integrated terminal
+- **Launch an agent from an issue**: click Play, PaiR opens a terminal tab and starts Claude Code on the issue
+- **Several sessions side by side**: tabs, split view and a cross-project workspace
+- **Your choice of runtime**: built-in terminal, tmux (sessions survive restarts, join them from any terminal with `tmux attach`) or herdr
+- **Attention alerts**: when an agent needs you, its tab turns red with a sound, so you come back at the right moment
 
-### AI Integration
-- **AI-native workflow**: Claude Code, Codex, Mistral or others: AI agents use the CLI to manage issues autonomously, and talk to each other through a shared channel, even from a sandbox. Agents with hooks (Claude Code, Codex) also show their activity live
-- **Live activity tracking** — AI activity LED per project, events panel (⌘⇧A), focus AI session window (⌘⇧F)
-- **Sound alerts**: Per-project notification sounds when AI agents interact with your issues, with visual tab alerts on the PaiR terminal sessions
-- **Real-time push** — CLI mutations and AI events pushed instantly via Unix socket
+### Working with AI agents
+- **The CLI**: any agent that can run a command drives PaiR through `pair`
+- **Hooks**: Claude Code and Codex also report their activity live (events panel, sounds, session states), without having to think about it
+- **A ready-made harness**: slash commands for Claude Code to create, run, review, commit and close an issue, plus a quality audit. The Python scripts behind them work with any agent (requires Python)
+- **Your own words**: write or dictate your request in natural language, the agent turns it into a precise issue
 
-### Activity Journal
-- **Live activity feed** — Every project has a journal that logs issue events, decisions, and progress notes — auto-generated and manually authored
-- **Readable by agents** — AI agents read the journal to understand what happened since their last session
-- **Cross-project view** — In workspace mode, the journal panel merges entries from all associated projects into a single chronological view
+### Agents that talk to each other
+- **Cables**: link two sessions, even across projects, and they message each other directly
+- **Just ask**: "let session X know the API is ready" is enough, the agent picks the right command
+- **The graph** shows who is talking to whom, live
+- **Peers on your local network**: pair with other PaiR instances, exchange messages, and cable to their sessions with your approval for each incoming message
 
-### Cross-project Orchestration
-- **Orchestration view** — Graphical canvas showing projects and their terminal sessions as interactive nodes. Puzzle-piece connectors visualize cross-session communication channels. Bidirectional sync: click a session in the graph to focus the terminal, click a terminal tab to highlight it in the graph
-- **Project associations** — Link related projects together (via `pair associate` or app settings). Associations are bidirectional and stored in a global catalog
-- **Shared context** — AI agents automatically read associated projects' journals at session start, so they know what's happening across codebases
-- **Cross-session journal push** — Linked sessions broadcast journal entries to each other in real time, including across projects
-- **Reply-to protocol** — Agents can reply to journal entries from associated projects, enabling asynchronous agent-to-agent communication
-- **Workspace mode** — Pin terminal sessions from multiple projects side by side. The orchestration view and journal panel adapt to show all workspace projects
+### Multi-agent orchestration (experimental)
+- **A team on one issue**: a supervisor, a coder and an independent reviewer pass the work along
+- **PaiR orchestrates, not the agent**: each role works in a session you can watch and take over, and the merge waits for your validation
+- Still being designed, expect rough edges. macOS and Linux for now
 
-### Sync & Collaboration
-- **GitHub / GitLab sync** — Bidirectional issue sync with external providers, comment push/pull
-- **Conflict resolution** — Detects and resolves merge conflicts when multiple collaborators edit the same issue
-- **Secure by default**: Peers are identified by their pinned certificate, repeated failed attempts are blocked, updates are checked for host and integrity, messages injected into a terminal are sanitized, and the local socket is reserved to your user
+### Secure by default
+- Peers are identified by their pinned certificate, and repeated failed attempts are blocked
+- Updates are checked for host and integrity before install
+- Messages injected into a terminal are sanitized, and the local socket is reserved to your user
 
-### Cross-platform
-- macOS, Linux, Windows — with dark, light, flat, and neon themes
-
-## Background & Compatibility
-
-PaiR is inspired by [Beads](https://github.com/steveyegge/beads), the AI-native issue tracker created by Steve Yegge, which stores issues directly in the codebase using a SQLite + JSONL structure. Our first take was [Beads Task-Issue Tracker](https://github.com/w3dev33/beads-task-issue-tracker), a desktop app built as a frontend for the existing Beads CLIs (`bd`, `br`). But as those CLIs evolved in diverging directions — Dolt migration, server mode, breaking changes — depending on external tools became a liability. PaiR was built from scratch with its own CLI, its own schema, and its own features to move at its own pace.
-
-Beads compatibility (import of an existing `.beads/` directory) was removed in v0.40: PaiR now stands entirely on its own engine. To bring an old Beads project over, use a release up to [v0.39](https://github.com/w3dev33/pair-dist/releases/tag/v0.39.0), which still performs the one-way import:
-
-- **`bd`** (Go) projects up to version 0.49.x (before the Dolt migration)
-- **`br`** ([beads_rust](https://github.com/Dicklesworthstone/beads_rust)) projects up to version 0.1.20+
+### More
+- **GitHub and GitLab import**: bring remote issues into PaiR (one-way, PaiR never writes back)
+- **AI text transform**: reformulate, translate or summarize any text field
+- **Takes care of you**: a Pomodoro timer for focused work cycles with regular breaks
+- **macOS, Linux and Windows**, in English and French, with four themes
 
 ## For AI agents
 
-PaiR is designed to be driven by AI coding assistants (Claude Code, Codex, Mistral and others). The `pair` CLI is bundled: agents use it to manage issues, and the app reflects every change in real time.
+PaiR is designed to be driven by AI coding agents (Claude Code, Codex and others), and the app reflects every change they make, live.
 
-### Setup
+There is nothing to set up by hand: open your project in PaiR, and it generates a `.pair/AGENTS.md`. On first contact, your agent reads it, offers to install its hooks and PaiR's slash commands, and follows the issue workflow from then on. The full CLI reference lives in that file.
 
-1. **Initialize the project**: from the app (add a folder) or via `pair init`
-2. **Read the reference**: an `AGENTS.md` is generated in `.pair/` with the full CLI documentation — commands, flags, workflows, and expected behaviors
-3. **Install notification hooks** (Claude Code): add `pair notify --hook` hooks in `.claude/settings.json` so the app gets real-time AI activity notifications (sound, tab flash, toast). The setup instructions are in `AGENTS.md`
+## Background and compatibility
 
-### Cross-project awareness
+PaiR is inspired by [Beads](https://github.com/steveyegge/beads), the AI-native issue tracker created by Steve Yegge, which stores issues directly in the codebase. Our first take was [Beads Task-Issue Tracker](https://github.com/w3dev33/beads-task-issue-tracker), a desktop frontend for the Beads CLIs (`bd`, `br`). As those CLIs evolved in diverging directions, depending on them became a liability, and PaiR was built from scratch with its own CLI, schema and features.
 
-If a project has associated projects (`pair associations`), the generated `AGENTS.md` includes instructions for cross-project reading. AI agents automatically check associated projects' journals at session start, flag breaking changes, and communicate via the reply-to protocol. No manual setup needed — just link the projects.
-
-### Teaching the agent
-
-Add these rules to your project's `CLAUDE.md` or equivalent agent configuration:
-
-```markdown
-## Issue tracking
-
-- Use `pair` CLI for all issue management (create, update, close, comment, search)
-- Before starting work: `pair list -s open` to check existing issues, then `pair update <id> -s in_progress`
-- Before creating an issue: `pair search "keyword"` to avoid duplicates
-- When done: `pair comments add <id> "Summary of what was done"` then `pair close <id>`
-- Commit `.pair/issues.jsonl` separately from code: `chore(pair): update issues`
-- Never ignore `.pair/` — it is the project's issue tracker
-```
-
-The key point: **the agent should treat `pair` like `git`** — not optional, part of the workflow. Every task starts with checking issues, every completion ends with closing one.
-
-### CLI reference
-
-The full command reference is in [`.pair/AGENTS.md`](.pair/AGENTS.md). Key commands:
-
-```bash
-pair list -s open              # Find available work
-pair show <id>                 # Read full context (description, comments, children)
-pair create "Title" -t bug     # Create an issue (-t bug/feature/task/epic, -d, -p, --parent)
-pair update <id> -s in_progress
-pair comments add <id> "Progress update"
-pair close <id>
-pair search "keyword"          # Full-text search across all issues
-pair attach <id> file.png      # Attach images, markdown, PDFs
-pair journal "Decision note"   # Write to the project journal
-pair associations              # List associated projects
-pair associate <prefix>        # Link two projects together
-```
-
-### Integrated terminal
-
-Instead of running agents in an external terminal, launch them directly from PaiR:
-
-- **Click Play on any issue** — opens a terminal tab named after the issue and starts the AI assistant with the right context
-- **tmux mode** — sessions persist across app restarts. Attach from any external terminal via `tmux attach -t pair-<issue-id>` to monitor or intervene while the agent works
-- **Real-time notifications** — when the agent needs attention, the tab flashes red with a sound alert. Click to jump to the right session
-- **Split view** — pin tabs to monitor multiple agents side by side
-
-### Real-time push
-
-Every CLI mutation triggers a push event — the app refreshes instantly. On macOS and Linux, this uses a Unix socket for real-time push. On Windows, the app polls for changes. Agents running inside PaiR's terminal are automatically detected, and their activity is routed to the correct project and tab.
-
-No special integration needed — agents just use the `pair` CLI, and the app reacts.
+Beads compatibility was removed in v0.40: PaiR now stands entirely on its own engine. To bring an old Beads project over, use a release up to [v0.39](https://github.com/w3dev33/pair-dist/releases/tag/v0.39.0), which still performs the one-way import of `bd` projects up to 0.49.x (before the Dolt migration) and [`br`](https://github.com/Dicklesworthstone/beads_rust) projects up to 0.1.20+.
 
 ## Links
 
@@ -159,8 +98,8 @@ No special integration needed — agents just use the `pair` CLI, and the app re
 
 ## Disclaimer
 
-PaiR is free to use. The software is provided as-is, with no warranty. Your data stays local — issues are stored in your project directory — but as with any tool, regular backups are your responsibility. See [LICENSE](LICENSE) for details.
+PaiR is free to use. The software is provided as-is, with no warranty. Your data stays local, in your project directory, but as with any tool, regular backups are your responsibility. See [LICENSE](LICENSE) for details.
 
 ## License
 
-[MIT](LICENSE) — Laurent Chapin
+[MIT](LICENSE), Laurent Chapin
