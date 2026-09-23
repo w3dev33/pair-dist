@@ -513,13 +513,13 @@ pair notify -t test -m "Hello"              # Test notification
 ```bash
 pair journal "Decision: use REST API, not GraphQL" --tags architecture,api   # Write
 pair journal "API endpoint ready" --push info --to "PaiR 2"      # Write + push to a cabled recipient
-pair journal "Waiting for frontend integration" --push attente --to scripteasy-v4  # "waiting" intent
+pair journal "Waiting for frontend integration" --push attente --to my-frontend  # "waiting" intent
 pair journal "Run integration tests now" --push action --to "PaiR 2"   # "action" intent
 pair journal --today                    # Today's entries
 pair journal --last 10                  # Last 10 entries
 pair journal --tag api                  # Filter by tag
 pair journal --since 2h                 # Since 2 hours ago
-pair journal --from scripteasy-v4      # Read another project's journal (read-only)
+pair journal --from my-frontend      # Read another project's journal (read-only)
 pair journal --export                   # Export to .pair/journal.jsonl
 ```
 
@@ -581,7 +581,7 @@ Notes:
 
 A push from another session lands in your input as a line tagged with its
 **sender and intent**: `[<sender-session> · <type>] <message>`. The sender name
-(e.g. `kybio-front-nuxt-4 11g4`) is who to answer — the exact session, not its
+(e.g. `acme-front-nuxt-4 11g4`) is who to answer — the exact session, not its
 project. Treat the tag as a verb:
 
 | Tag | What it means for you |
@@ -603,9 +603,9 @@ project, runtime); it works even when the shell has no `PAIR_TERMINAL`/`$TMUX`.
 ### `cable` — Wire your session to another one
 
 ```bash
-pair cable add scripteasy-v4        # Connect to that project's session
+pair cable add my-frontend        # Connect to that project's session
 pair cable add "PaiR 1"             # …or name the session precisely
-pair cable rm scripteasy-v4         # Disconnect
+pair cable rm my-frontend         # Disconnect
 pair cable list                     # Your cables + the sessions you can cable
 pair cable list --all               # Every cable, not just yours
 ```
@@ -614,9 +614,9 @@ A cable wires **your session** to another one, across projects. It is
 **bidirectional** (connecting one way means both talk) and persisted in
 `catalog.db`, so it survives a restart and shows up in the app's graph view.
 
-Naming the target: a **project name** is the usual form (`scripteasy-v4`) and
+Naming the target: a **project name** is the usual form (`my-frontend`) and
 works when that project has a single active session. If it has several, the
-command refuses and lists them — name the session instead (`"scripteasy-v4 2"`).
+command refuses and lists them — name the session instead (`"my-frontend 2"`).
 A session id also works.
 
 Scope: sessions running under tmux or herdr. A plain PTY session exists only in
@@ -625,8 +625,8 @@ the running app and cannot be cabled from the CLI.
 ### `session open` : open a new agent session (pair-1shw.2)
 
 ```bash
-pair session open scripteasy-v4 --json                    # → {"sessionId":"pty-…", …}
-pair session open scripteasy-v4 --message "You are the coder for pair-2cks…"
+pair session open my-frontend --json                    # → {"sessionId":"pty-…", …}
+pair session open my-frontend --message "You are the coder for pair-2cks…"
 ```
 
 Opens a **new** session in a project and prints its id (`--json` →

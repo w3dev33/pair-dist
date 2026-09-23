@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.42.0] - 2026-09-23
+
+### Features
+- **In-app documentation reworked** - a new **Multi-agent orchestration** page (team, steps, merge validation, why PaiR orchestrates rather than the agent's own sub-agents); **Communicating with AI agents** now gathers both directions (CLI, hooks, cables between sessions, asking in natural language); **Working with AI** describes writing issues by hand or by voice, attachments as working material and the shipped slash commands; **Getting started** presents the second brain, the seven issue types, the journal and the first settings. Pages are ordered along the reader's path.
+- **Orchestration panel translated** - engine states (implementation, review, finalisation, ready for merge, merge) and the gate are shown in the interface language; in French the gate reads "Validation de la fusion".
+
+### Fixes
+- **Help table of contents** - clicking an entry selects it like the arrow keys do, the selection no longer lingers across pages, and clicking a page lands on its first sub-section.
+- **Documentation accuracy** - removed statements that no longer held (status pie chart, editor-based session tracking, drag-to-cable gesture, tombstone on close), priorities go up to P4, keyboard shortcuts note the Ctrl equivalent on Windows and Linux.
+- **No references to other projects** - examples, test fixtures and the embedded AGENTS.md and skills use generic names.
+
 ## [0.40.0] - 2026-09-23
 
 ### Features
