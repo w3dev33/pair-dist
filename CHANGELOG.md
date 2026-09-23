@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.42.1] - 2026-09-23
+
+### Fixes
+- **Quitting no longer hangs** - with a terminal session open, quitting froze the app on a spinning wheel (lock re-entered while closing sessions, since v0.40.0).
+- **Play button** - the command is written in one block instead of being typed character by character.
+- **Unsigned app notes** - the update window no longer asks to rerun `xattr` after every update, and the Getting Started page gains an Installation section: first launch, local network access after each update on macOS 27, SmartScreen on Windows.
+
 ## [0.42.0] - 2026-09-23
 
 ### Features
