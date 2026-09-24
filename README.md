@@ -20,6 +20,11 @@ It's not just a workflow, it's a learning process.
 
 The name says it all: **PaiR**, the human and the AI working side by side.
 
+<p align="center">
+  <a href="https://pair.w3dev.fr"><img src="assets/screenshot-list.png" width="49%" alt="PaiR: issue list and integrated terminals"></a>
+  <a href="https://pair.w3dev.fr"><img src="assets/screenshot-orchestration.png" width="49%" alt="PaiR: multi-agent orchestration"></a>
+</p>
+
 ## Installation
 
 Download PaiR for macOS, Linux and Windows:
