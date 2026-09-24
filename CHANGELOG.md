@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.43.0] - 2026-09-24
+
+### Features
+- **Session type of your choice** - Settings pick a default session type (Ask, PTY, tmux, herdr) that only applies to the next sessions: changing it no longer closes open ones. The "+" menu and Play offer the runtimes that are available; orchestration teams can run in PTY.
+- **Sessions list by project** - the sidebar Sessions list groups sessions in one frame per project and drops the repeated project name from each row. Cables between sessions move to the right of the list.
+- **Opening order kept** - sessions now carry their opening time (tmux keeps its own across restarts), so tabs and the Sessions list come back in the order they were opened, not by name.
+- **Orchestration at a glance** - each role (supervisor, coder, review) shows a state pictogram in the Sessions list and on its tab: in progress, delivered or passed, review failed with its round count, gate waiting for your decision, merged, aborted. Role badges are neon-coloured and equal-width.
+- **Orchestration tabs grouped** - the tabs of one orchestration sit in a tinted frame labelled with the ticket, each tab showing only its role. Role sessions are pinned side by side when they open, and a finished orchestration keeps its grouped team after a restart while its sessions are open.
+- **Pane badge and ticket button** - every displayed terminal has a thin bar with the session name (or role) and its runtime, plus a button that opens the session's ticket in the detail panel, switching project if needed.
+- **Lighter terminal bar** - the AI activity dot sits on the tabs, the always-on purple dot and blinking Claude badge are gone, tmux no longer has a header badge and herdr's only shows when a herdr session exists.
+- **LAN sharing** - among an orchestration's roles, only the supervisor can be exposed on the network.
+- **Orchestration sandbox and diagram** - a replayable sandbox script to test orchestrations, and an SVG diagram of an orchestration's flow in the in-app docs.
+
+### Fixes
+- **Merge gate** - more reliable gate and delivery to the supervisor, a gate on another project, exact cycle counters and per-role verdicts, one message per session and per cycle, quoted text no longer trips the enforcement hook.
+- **Unsubmitted messages** - an orchestration message that lands in an agent's input without being submitted (Enter taken for a line break under load) is detected through the agent's prompt hook and its Enter re-sent.
+- **Ghost sessions** - a session closed together with others no longer stays listed.
+- **Expanded lists** - the expanded state of the Sessions and Favorites lists survives a reload.
+- **Terminal remount** - a terminal unmounted while loading no longer throws nor leaks its output listener.
+
 ## [0.42.1] - 2026-09-23
 
 ### Fixes
