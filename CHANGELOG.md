@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.44.0] - 2026-09-26
+
+### Features
+- **Split layouts** - the split terminal offers three layouts: automatic grid, columns or rows. The layout button shows as soon as the view holds two sessions, and sits after the "+" button with the size reset.
+- **Dev and prod side by side** - the dev app has its own identity (`com.pair.app.dev`, "PaiR Dev" window, DEV MODE badge) and its own data, tmux server (`-L pair-dev`), herdr session, CLI socket (`pair-dev.sock`), pane map and network port (65032). Sessions it opens carry `PAIR_CHANNEL=dev` and `PAIR_CLI`, and any `pair` run inside them hands over to the dev CLI. A project open in both apps keeps separate orchestration logs and sandbox outboxes per channel.
+- **Codex identity per tab** - since Codex 0.157 every `codex` joins one shared app-server daemon whose commands keep the first tab's `PAIR_TERMINAL`. AGENTS.md and the hooks guide document a `codex()` shell function that pins each tab's identity on its Codex session.
+- **Demo and capture tooling** - scenario runs keep no trace unless asked (`--record`, `--capture`, `--release`); new scenario commands `set-dev-badge` and `window-maximize` (done by the app, no macOS Accessibility needed); 30 s recording segments so a take ends right after the staging.
+
+### Fixes
+- Files PaiR deploys in `.pair/` (AGENTS.md, `.gitignore`, skills, scripts) carry a `pair-template` version stamp: an older binary no longer rewrites a newer one, so two PaiR versions on one project stop undoing each other.
+- The terminal view buttons (layout, size reset) are vertically aligned with the "+" button.
+- Clickable session rows in the Sessions list show an outline.
+- Scenario typing (`terminal-type`) also works in PTY sessions, not only tmux.
+- New schema migrations must stay additive: `pair.db` is shared by binaries of different versions (rule documented in `db.rs`).
+
 ## [0.43.0] - 2026-09-24
 
 ### Features

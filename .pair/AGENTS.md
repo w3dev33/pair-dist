@@ -1,3 +1,4 @@
+<!-- pair-template: 0.44.0 dev -->
 # AGENTS.md — PaiR
 
 This project uses `pair` for issue tracking. Issues are stored locally in SQLite (`.pair/pair.db`).
@@ -14,6 +15,17 @@ Check if PaiR notification hooks are installed. They enable real-time observatio
 
 - **Claude Code**: look for `pair notify` entries in `~/.claude/settings.json` (global) or `.claude/settings.json` (project-level) under `"hooks"`. If missing, offer to install them by adding the hooks configuration listed in the "Claude Code hooks configuration" section below.
 - **Codex (OpenAI)**: run `pair hook --install --global` (MERGES into `~/.codex/hooks.json`, preserving any hooks you already configured, and calls the stable `pair hook <Event>`). Global is the one-time setup that applies to **every** project — it mirrors Claude's global `~/.claude`, so you never drop a `.codex/` in each repo (each hook resolves its project from the cwd). Use `pair hook --install` (no `--global`) only for a project-specific override. Then open Codex's `/hooks` and mark them trusted — unapproved hooks are ignored, and a running session only picks them up after a restart. In CI, start Codex with `--dangerously-bypass-hook-trust`.
+  **Codex identity in PaiR tabs**: since Codex 0.157, every `codex` joins one shared app-server daemon, and the commands it runs keep the `PAIR_TERMINAL` of the tab that started the daemon, so every Codex tab reports the first tab's identity (cables and replies go to the wrong session). Check whether the user's `~/.zshrc` defines a `codex` function; if not, offer to add this one (one-time, harmless outside PaiR and when the daemon is off):
+
+```zsh
+codex() {
+  if [ -n "$PAIR_TERMINAL" ]; then
+    command codex -c "shell_environment_policy.set.PAIR_TERMINAL=\"$PAIR_TERMINAL\"" "$@"
+  else
+    command codex "$@"
+  fi
+}
+```
 
 This is a one-time setup — once installed, every action you take is visible in the PaiR app.
 
