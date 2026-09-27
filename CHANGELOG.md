@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.45.0] - 2026-09-27
+
+### Features
+- **Tagged cross-session messages** - a delivered push is wrapped in `<pair-message from="<session>" level="<type>">`, built by one helper for the app and the CLI; the text cannot forge its own envelope. AGENTS.md defines the contract: a request from another session, not from the user; irreversible or outward actions need the user's confirmation.
+- **Bounded relaunches in orchestration** - a role whose turn ends without a verdict (Stop hook, then 60 s of silence) is relaunched with a checklist, at most twice per step and never past a human gate, then the supervisor is told (`relaunch_exhausted`). `Limits.max_relaunches` / `relaunch_quiet_secs`; counter in the Orchestration panel.
+- **Cross-project relations** - `pair relate <id> <project>:<id>` links a ticket to one of another PaiR project, stored on this side only in `external_dependencies` and kept apart from blockers. `pair show` lists them with the project and its live session, the issue detail shows them under "Other projects", and AGENTS.md makes them a routing hint (ask that project's session). Blocking or misordered directional relations across projects are refused.
+- **Closing overlay** - a "Closing PaiR..." veil while the app shuts down.
+
+### Fixes
+- Faster shutdown: network goodbyes go out in parallel, and only to live peers.
+- In dev, the app no longer copies the stale sidecar over the debug CLI on each rebuild (`externalBin` emptied in `tauri.dev.conf.json`).
+
 ## [0.44.0] - 2026-09-26
 
 ### Features
