@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.46.0] - 2026-10-05
+
+### Features
+- **Native message delivery to Claude Code** - in a session opened by PaiR, Claude Code (2.1.286+) receives cross-session messages directly in its conversation instead of keystrokes: read mid-turn at the next step, an idle session wakes up on its own, line breaks kept. The `pair` plugin is embedded in the app, deployed at boot to `~/.pair/mods[-dev]/` and declared to each session through `CLAUDE_CODE_PLUGIN_DIRS`; it runs `pair inbox --follow`. Claude Code only: other agents (Codex, herdr...) and older Claude Code keep the terminal delivery, unchanged; without a live receiver, delivery falls back to it. Keystrokes (Play button, remote control, peer command proposals) always go to the terminal. End-to-end test: `scripts/test-inbox-e2e.py`.
+- **Native messaging tools in Claude Code** - the same plugin (renamed `pair`) gives Claude `mcp__pair__send_message`, `mcp__pair__reply` and `mcp__pair__list_sessions`: they run `pair journal --push` / `pair session list` through an argv (no shell, so no refused compound command), with the level and recipient required by the schema. Claude Code only: other agents keep the `pair` CLI, which these tools call.
+- **`pair whoami` knows the current ticket and the app language** - `--json` adds `issue` (`id`, `title`, `status` of the ticket the session last put in progress, now kept by the CLI) and `locale`. Available to every agent.
+- **Status band in Claude Code** - off by default, turned on in Settings > Terminal; the `pair` plugin then shows one dim line above the prompt: session, current ticket, cabled sessions, last message received, in the app language. Claude Code only: other agents read the same facts with `pair whoami` and `pair cable list`.
+- **API-equivalent cost per ticket** - `pair close` adds a comment with what the ticket cost at API prices (a reference value, not a bill), in the app language. `pair usage add` records a turn against the session's ticket in progress, `pair usage show <id>` gives the total; PaiR keeps no price table, the cost is the agent's own figure. In Claude Code, the `pair` plugin records every turn with Claude Code's status-line cost. Other agents can report theirs with `pair usage add`.
+- **PaiR guards** - before an agent runs it, a code `git push` is blocked while the `.pair` tracker has unpushed commits (migrated mode), a `git commit` including `.pair/` files is blocked, and `pair notify` gets a reminder that it does not reach other sessions. `pair guard bash` gives the decision to any agent; in Claude Code, the `pair` plugin applies it by itself (it only calls the CLI for commands a guard can concern).
+- **Direct messages with attachments** - a DM can carry images (pasted, dropped or picked, re-encoded to WebP, 4 per message, with a viewer) and Markdown or PDF documents, opened in the existing viewers. Copying a bubble keeps its images when pasted back in the composer; the image, Markdown and PDF viewers have a copy button to attach the file to a DM. An older peer receives the text and ignores the attachments.
+- **Ephemeral messages** - kept in no history; on arrival it bypasses the filters and goes away at the first action once shown, with its files.
+- **DM history and unread state** - DMs are kept in the global catalog (local, never pushed, last 500 reloaded at boot), a toast and a badge announce them, and each message can be marked read or unread. A selection mode deletes messages with their files; search covers every conversation. The top menu filters conversations; the composer has its own recipient picker, several recipients allowed.
+- **Network sessions** - a global "Declare on the network" switch (off by default) decides LAN presence on its own, independently of project sharing. A session is exposed from its antenna menu (tab or graph) to chosen peers or all of them. Exposed sessions appear in the Sessions panel, one frame per peer with its LAN cables, and in the CLI: `pair session list`, `pair cable add` and `pair journal --push --to X --peer Y` reach them.
+- **Network messages tab** - Messaging has a "Network sessions" tab listing messages passed through a cable, with Inject / Ignore when the handshake is not automatic and a toast on arrival. An envelope flags a network session waiting for a decision on the Sessions panel and the graph. Automatic handshake is shown with a common icon on the graph, the rails and Messaging, and its tooltip names the link.
+- **A session shows its current ticket everywhere** - putting a ticket in progress from the prompt attaches it to the session: tab, panel header, Sessions list and graph follow one rule. A network session announcement carries its ticket too.
+- **Mermaid diagrams** - ```` ```mermaid ```` blocks render as diagrams in the Markdown reader, comments and release notes; loaded on demand, strict mode, invalid syntax shows the code and the error.
+- **Git repository URL in project info** - the Information panel shows the `origin` URL under the local path, HTTPS token masked.
+
+### Bug Fixes
+- **A reply reaches its sender every time** - `pair journal --push` without `--to` (and the `mcp__pair__reply` tool) answered the last session that messaged this one only once: the second reply recorded a local journal note and reported nothing. The reply target now stays until the next message or the session closes, and a push with no recipient at all fails with an explicit error instead of writing a note.
+- **Network messages arrive tagged** - a message relayed by a LAN cable gets the same `<pair-message>` envelope as a local one, with the peer name, and a reply without `--to` goes back to the remote sender.
+- **Network back after sleep** - the watchdog restarts the network when a LAN interface returns, instead of leaving it off. The network nickname is sent even when the open project is not shared.
+- **Paste a screenshot in Messaging on Linux** - WebKitGTK does not pass the image in the paste event; the composer reads it from the system clipboard.
+- **The project list lives in the catalog** - it was only in the webview storage: the CLI did not see a project added by hand, and the list could be lost when the app was killed.
+- **CLI errors instead of silent losses** - `--auto-open` and `pair session open` fail with an error naming the channel when no app listens; a failed push no longer records a journal entry that reads like a sent message.
+- **`pair hook --install --claude` adds missing hooks** - a partial install without SessionStart is completed instead of left as is.
+- **Toasts that never showed** - the gate decision feedback and the DM toast went through a notifier with no mounted host; they use the app notifications.
+- **Removing a project closes its sessions** - the confirmation gives the number of active sessions.
+- **Workspace mode keeps the chosen session visible** - picking a session of another project no longer turned the pinned one off.
+- **Focus AI Session on Linux and Windows** - the menu was still hidden outside macOS, a leftover of the removed PID-based window focus.
+
 ## [0.45.0] - 2026-09-27
 
 ### Features
