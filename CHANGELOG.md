@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.47.0] - 2026-10-14
+
+### Features
+- **Distinct sounds for incoming messages** - a direct message received and a cable message awaiting acceptance each play their own sound, set in Settings > Notifications (defaults: Pop and Knock knock, Off available). Three new sounds (Pop, Chimes, Knock knock), also offered for AI alerts, project sounds and the Pomodoro. Global mute and volume apply.
+- **Project logo or emoji** - a PNG/JPG logo (converted to `.pair/logo.webp`, 512 px max) or an emoji in `config.yaml`, shown in the project list, Sessions groups, the graph, terminal tabs and pane headers.
+- **Forward a ticket by DM** - the Forward button attaches the full ticket (comments, attachments optional) to a Messaging draft; the recipient imports it into the selected project as a new ticket, origin noted at the top of the description. The draft survives tab changes.
+- **Per-terminal zoom** - a terminal follows the app zoom by default and can be enlarged on its own: - % + buttons in the hover badge, ⌘+ / ⌘- / ⌘0. Kept per session, forgotten when the tab closes.
+- **Quit warns about lost sessions** - the quit dialog counts the PTY sessions that will die with the app and can close the app's own tmux server (never the other channel's), switch off at each opening. Menu/close button and Rust event now share one QuitDialog, translated.
+- **Print an image fitted to the page** - on macOS, orientation and printable area come from NSPrintInfo (WebKit ignores `@page { size }`).
+- **Cable initiator only auto-accepts replies** - the session that writes first on a cable auto-accepts only replies to its own messages (`in_reply_to`, consumed at the first reply); a remote session can no longer drive it with unsolicited messages. The role is fixed at the first exchange.
+- **Mistral Vibe hook adapter (not yet active)** - `pair hook --vibe` translates Vibe hooks into `vibe:*` events, `--install --vibe` writes `hooks.toml`, Vibe sessions get the Mistral logo. Vibe ignores hooks of an unapproved project: only `--global` works for now.
+
+### Bug Fixes
+- **Global notification sound ignored** - the chosen sound was read raw while stored as JSON, so the bell always played. "Default" now previews the global sound (click and volume slider); Off / Default buttons are translated.
+- **External session taken for the PaiR session** - the project-level identity fallback now requires a PaiR parent when the process chain is readable: a session launched in iTerm or an external herdr no longer blinks the PaiR session badges or writes its ticket there.
+- **Terminal selection off when the window is zoomed** - the CSS zoom skewed xterm.js mouse-to-cell mapping; the container is counter-zoomed and the font follows the zoom.
+- **pair-message level carried the targets on PTY** - `deliver_journal_push` split the meta at the first `|`; it now goes through `parse_push_type`.
+- **Same prefix for two folders differing by case** - the second one gets a `-2` suffix; removing a project from the app also forgets it in the catalog read by `pair catalog`.
+
 ## [0.46.0] - 2026-10-05
 
 ### Features
