@@ -1,4 +1,4 @@
-<!-- pair-template: 0.47.0 dev -->
+<!-- pair-template: 0.48.0 dev -->
 # AGENTS.md — PaiR
 
 This project uses `pair` for issue tracking. Issues are stored locally in SQLite (`.pair/pair.db`).
@@ -154,6 +154,20 @@ pair journal "Done: added lastPushAt prop to JournalPanel — modified JournalPa
 
 **The goal:** each session leaves enough breadcrumbs that the other can avoid stepping on the same files. This doesn't prevent all conflicts, but it makes them visible early.
 
+### Crew mode : one lead, satellites on demand (pair-1844.3)
+
+A **crew** runs a project with several sessions without a fixed workflow: one **lead** session and **satellites** opened as needed. The user talks to the lead only.
+
+Started from the lead with `/pair-crew` (`start <goal>`, or `adopt` to turn running, cabled sessions into a crew). Each satellite receives a short contract by `--push action`, then works its tickets with `/pair-run-issue` as usual.
+
+If you received a crew contract, it overrides the default confirmations:
+- Questions go to the lead (`pair journal "…" --push attente --to "<lead>"`), never to the user.
+- Audit, fix, commit, continue: no permission asked to audit or commit. At most 3 audit-fix cycles per batch, then report to the lead and move on.
+- Never push, never ask about pushing: the user pushes.
+- Stay in your zone (your files, your test resources). Long-lived services belong to the lead.
+- When waiting or idle, end your message with an « En attente : » block (what, from whom, what next).
+- Context: at the end of a ticket above the crew threshold, run `/continue-task`, send « prête : <file> » to the lead and stop. The lead clears and resumes you.
+
 ### When finishing work
 
 - **If your session has cables (`pair cable list`):** run `pair journal --from <prefix> --since 2h` for each cabled project as a final coherence check before closing
@@ -207,9 +221,10 @@ Before closing any parent issue, **inventory its children first** — never clos
 
 | Flag | Description |
 |------|-------------|
-| `-C <path>` / `--project <path>` | Project directory (default: current directory) |
+| `-C <path>` / `--project <path>` | Project directory (default: current directory; walks up to the nearest PaiR project) |
 | `--json` | Output as JSON |
 | `--actor <name>` | Actor name for authoring (default: git user.name) |
+| `--agent-session <id>` | Agent (Claude) session id stamped on the journal entries of create/close/status/comment, so a ticket is attributed to its session (default: env `PAIR_AGENT_SESSION`; an empty value counts as absent) |
 
 ## Commands
 
@@ -349,7 +364,7 @@ If usage was recorded for the ticket, `close` adds a comment with its
 API-equivalent cost. The Claude Code `pair` plugin records it by itself. Another
 agent that knows its per-turn usage reports it with
 `pair usage add --model <m> --input N --output N [--cache-read N] [--cache-write N] [--cost-usd X]`
-(charged to the session's ticket in progress, or `--issue <id>`).
+(charged to the session's ticket in progress, or `--issue <id>`). The session's own cost goes with `--session-total <usd> --epoch <ms>` (or `pair usage snapshot --total <usd> --epoch <ms>` alone); the crew view shows it.
 
 ### `pin <id>` / `unpin <id>` — Pin or unpin an issue
 
@@ -552,7 +567,7 @@ pair journal --export                   # Export to .pair/journal.jsonl
 
 The journal is **auto-populated** on every `pair create`, `pair close`, `pair comments add`, `pair update` (status changes → `status_changed`), `pair attach` (`attachment_added`), and `pair detach` (`attachment_removed`). Manual entries are for decisions, milestones, and notes.
 
-**Cross-session push** (`--push`): delivers the journal entry in real-time to a **cabled** recipient (named with `--to`) via tmux send-keys. Types: `info` (FYI), `attente` (waiting for the recipient), `action` (instruction to act). `--to` is required; a recipient that isn't cabled yet is cabled on the fly. Without `--push`, the entry is written to the journal only. Cables are created with `pair cable add` or by dragging sessions together in the graph view. The delivered line is wrapped with **your session** as sender (`<pair-message from="<your-session>" level="<type>">…</pair-message>`) so the recipient can answer you precisely — see "Receiving a push" below for the reply flow.
+**Cross-session push** (`--push`): delivers the journal entry in real-time to a **cabled** recipient (named with `--to`) via tmux send-keys. Types: `info` (FYI), `attente` (waiting for the recipient), `action` (instruction to act). `--to` is required; a recipient that isn't cabled yet is cabled on the fly. A push prints a message id and only proves the text was DEPOSITED; `pair inbox --status <id>` tells whether the recipient READ it (receipt written by the PaiR plugin; an agent without the plugin never acknowledges). Without `--push`, the entry is written to the journal only. Cables are created with `pair cable add` or by dragging sessions together in the graph view. The delivered line is wrapped with **your session** as sender (`<pair-message from="<your-session>" level="<type>">…</pair-message>`) so the recipient can answer you precisely — see "Receiving a push" below for the reply flow.
 
 After reading another project's journal (`--from`), the next manual write is automatically tagged with `reply-to:<project>:<id>` to trace cross-project exchanges.
 
@@ -576,6 +591,8 @@ Recognise these intents (the user may phrase them in English, French, or any oth
 | "tell X to do …" / "have X run …" | `pair journal --push action "…" --to X` |
 | "tell everyone on project P …" | `pair journal --push info "…" --to P` |
 | "tell X and Y …" | `pair journal --push info "…" --to X --to Y` |
+| "hand a **job** to a session" (lead) | `pair journal --push action "…" --to "<session>" --task "short title"`: the title (80 characters) is what the crew view shows under that session while it works; a follow-up order without `--task` does not replace it |
+| "ask the **person** a question" (not another session) | `pair ask "…" [--option A --option B [--multiple]] [--context "1-3 lines: what you were doing"]`: shows in the Crew tab, with your session and ticket, the answer comes back as a message, do not wait in a loop; the answer `(sans objet)` (exact text) means the person has nothing to say |
 | "message a project that has **no live session** / open one there and tell it …" | `pair journal --push info "…" --to P --auto-open` (creates **and** cables) |
 | "log that …" / "write in your journal that …" / "note that …" | `pair journal "…" --tags status` (no push) |
 | "tell the **network / remote** session X of peer Y …" / "send to X on Y …" | `pair journal --push info "…" --to X --peer Y` |
@@ -594,6 +611,10 @@ Notes:
 - **`--auto-open` and `pair session open` need the PaiR app running** on your channel
   (prod, or dev when `PAIR_CHANNEL=dev`): the app opens the session. With no app
   listening, the command fails and says which channel has an app, if any.
+- **A project name must be exact** (folder, path, prefix or catalog name; case does
+  not matter); it is never guessed. When it does not match, the error lists the
+  closest known projects: **ask the user which one**, never pick for them, then run
+  the command again with the exact name. `pair catalog` lists every project.
 - **`--to` is required** (pair-jbuz.4). `<X>` is a session name, a session id, or a
   **project name** meaning every cabled session of that project. Repeat `--to` for
   several recipients. A push with no recipient is **refused**: without one it used
@@ -639,7 +660,7 @@ Notes:
 #### Receiving a push — act on it, don't just read it
 
 A push from another session lands in your input wrapped in a tag that names its
-**sender and intent**: `<pair-message from="<sender-session>" level="<type>">…</pair-message>`.
+**sender and intent**: `<pair-message from="<sender-session>" level="<type>" id="<message id>">…</pair-message>` (the `id` is there when the push carries one: the PaiR plugin quotes it in its read receipt).
 The sender name (e.g. `acme-front-nuxt-4 11g4`) is who to answer: the exact
 session, not its project. A message from **another machine** also carries
 `peer="<LAN name>"`: `<pair-message from="PaiR 1" peer="PaiR-DEV" level="info">`.

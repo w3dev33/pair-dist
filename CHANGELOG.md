@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.48.0] - 2026-11-05
+
+### Features
+- **Crew mode** - a lead session drives satellites cabled to it (`/pair-crew`, offered when a ticket is launched with `/pair-run-issue`). The lead's questions and reports stay beside its chat (`/pair-crew-panel`, "Crew names" setting exposed by `whoami --json`).
+- **Crew progress view** - one block per crew (lead deduced from the cables), a row per live session with what it is working on (the short title the lead gave, the last request), its API-equivalent cost and a crew total, then the crew's tickets in one collapsible list, newest first, with first-activity time and dated steps: plan, in progress, audited (with the audit cycle), committed, closed, pushed ("pushed" is recorded at push time). Click a session to select its tab, a ticket to open it. Tickets are tied to the lead by NAME in the journal, closed and pushed ones included (greyed) while the lead has a section.
+- **Stopped crews hidden by default** - a crew whose lead is gone keeps a greyed section for 30 days (journal window), shown by the "Show stopped crews (N)" checkbox, remembered. A live session, lead or satellite, never produces a stopped section under its own name.
+- **`pair ask`** - any agent asks the person a question; the Questions zone of the project (one per project, not a module per cell) shows where it comes from and its context, `AskUserQuestion` is intercepted, a small cross closes a question unanswered, `pair journal --resolve --answer` keeps the reply.
+- **Read receipt for pushed messages** - `deposited` becomes read / refused; a message is deleted only after delivery, a refusal no longer loses it; an abandoned message is kept and resubmitted; a pushed message keeps its recipient.
+- **Attention frame only for a real request** - no red frame on tabs or in the sessions list at rest, none on crew satellites; one attention channel. End-of-turn sound muted for the crew.
+- **`pair session open --model`** - picks Claude's model, shown in `session list` and `cable list`.
+- **`agent_session` in the journal** on create, close, status and comment; session cost (`--session-total`, snapshot) and message id in the envelope of `pair usage`.
+- **CLI and sessions** - near-miss project names are suggested, `pair` climbs to the project root from a subfolder, `--auto-open` on its own project opens a sibling session, clicking a project selects its first session, projects follow the project list order.
+- **Guards** - `pair` without `-C` outside a project is refused, a stale `index.lock` is cleaned up, quoted text no longer neutralizes the filter.
+
+### Bug Fixes
+- **`pair dep add`** records "blocker blocks id".
+- **Idle prompt** of Claude Code no longer sets the session to waiting; a mute "working" session falls to sleeping after 15 min.
+- **Identity** - tmux tiers only serve the tmux server of the CLI's channel; `auto_commit` / `auto_push` carry the PaiR id.
+- **Attachments** - the ticket sheet refreshes when its attachments change.
+- **Storage** - session events and states are persisted less often.
+- **Nestor** - the share mount is retried when busy.
+
 ## [0.47.0] - 2026-10-14
 
 ### Features
@@ -9,7 +31,7 @@
 - **Per-terminal zoom** - a terminal follows the app zoom by default and can be enlarged on its own: - % + buttons in the hover badge, ⌘+ / ⌘- / ⌘0. Kept per session, forgotten when the tab closes.
 - **Quit warns about lost sessions** - the quit dialog counts the PTY sessions that will die with the app and can close the app's own tmux server (never the other channel's), switch off at each opening. Menu/close button and Rust event now share one QuitDialog, translated.
 - **Print an image fitted to the page** - on macOS, orientation and printable area come from NSPrintInfo (WebKit ignores `@page { size }`).
-- **Cable initiator only auto-accepts replies** - the session that writes first on a cable auto-accepts only replies to its own messages (`in_reply_to`, consumed at the first reply); a remote session can no longer drive it with unsolicited messages. The role is fixed at the first exchange.
+- **Cable initiator only auto-accepts replies** - the session that writes first on a cable auto-accepts only replies to its own messages (`in_reply_to`, consumed at the first reply); any other message from a remote session waits for approval, so it can no longer drive the session. The role is fixed at the first exchange.
 - **Mistral Vibe hook adapter (not yet active)** - `pair hook --vibe` translates Vibe hooks into `vibe:*` events, `--install --vibe` writes `hooks.toml`, Vibe sessions get the Mistral logo. Vibe ignores hooks of an unapproved project: only `--global` works for now.
 
 ### Bug Fixes
