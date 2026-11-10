@@ -1,4 +1,4 @@
-<!-- pair-template: 0.48.0 dev -->
+<!-- pair-template: 0.49.0-latest dev -->
 # AGENTS.md — PaiR
 
 This project uses `pair` for issue tracking. Issues are stored locally in SQLite (`.pair/pair.db`).
@@ -13,7 +13,7 @@ and apply the parts that name your host.
 ### 1. Hooks
 Check if PaiR notification hooks are installed. They enable real-time observation in PaiR: sound alerts, visual indicators, and AI activity tracking. **Hooks are host-specific** — set up the ones for your host:
 
-- **Claude Code**: run `pair hook --install --claude --global`. **Run it at every session start, not only the first one** — it is idempotent and silent when nothing is missing. It adds to `~/.claude/settings.json` the PaiR hooks that are missing (SessionStart, PreToolUse, PostToolUse, Notification, Stop, SubagentStop, UserPromptSubmit, PreCompact), leaves every existing entry untouched, skips an event already served by the project's `.claude/settings.json`, and writes nothing if the file is not valid JSON. A partial install (e.g. no SessionStart) is how the Play button ends up waiting for the first tool call before delivering its topic. If the command reports added hooks, tell the user to restart Claude Code so they load. The full configuration it writes is in the "Claude Code hooks configuration" section below.
+- **Claude Code**: **at every session start, not only the first one**, run `pair hook --install --claude --global --dry-run`. It lists what is already recognized (`Already recognized:`) and what would be added (`Would add:`), and writes nothing. When it says `Would add: nothing`, you are done, say nothing. Otherwise show the list to the user and, **only after they agree** (`~/.claude/settings.json` is their own global configuration), run `pair hook --install --claude --global`. It adds the PaiR hooks that are missing: the eight `pair notify --hook` events (SessionStart, PreToolUse, PostToolUse, Notification, Stop, SubagentStop, UserPromptSubmit, PreCompact), plus two entries for PaiR's own scripts, a reminder at every prompt (`inject-pair-messaging.py`, UserPromptSubmit) and a guard before each shell command (`guard-pair.sh`, PreToolUse on Bash). The two scripts live in `~/.pair/hooks/`, a folder PaiR fills itself at every app start and at every install, without asking. The command leaves every existing entry untouched, does not add an entry that already runs the same script (same file name, whatever its folder), edits the file in place (key order and indentation kept, a link to the user's toolkit stays a link), keeps a copy `settings.json.pair-backup` beside the real file before the first write, refuses a read-only file, and does not write the two script entries on Windows, skips an event already served by the project's `.claude/settings.json`, and writes nothing if the file is not valid JSON. A partial install (e.g. no SessionStart) is how the Play button ends up waiting for the first tool call before delivering its topic. If the command reports added hooks, tell the user to restart Claude Code so they load. The full configuration it writes is in the "Claude Code hooks configuration" section below.
 - **Codex (OpenAI)**: run `pair hook --install --global` (MERGES into `~/.codex/hooks.json`, preserving any hooks you already configured, and calls the stable `pair hook <Event>`). Global is the one-time setup that applies to **every** project — it mirrors Claude's global `~/.claude`, so you never drop a `.codex/` in each repo (each hook resolves its project from the cwd). Use `pair hook --install` (no `--global`) only for a project-specific override. Then open Codex's `/hooks` and mark them trusted — unapproved hooks are ignored, and a running session only picks them up after a restart. In CI, start Codex with `--dangerously-bypass-hook-trust`.
   **Codex identity in PaiR tabs**: since Codex 0.157, every `codex` joins one shared app-server daemon, and the commands it runs keep the `PAIR_TERMINAL` of the tab that started the daemon, so every Codex tab reports the first tab's identity (cables and replies go to the wrong session). Check whether the user's `~/.zshrc` defines a `codex` function; if not, offer to add this one (one-time, harmless outside PaiR and when the daemon is off):
 
@@ -64,13 +64,23 @@ Once the pointer is in your global config, future sessions load PaiR automatical
 
 ### 3. Install ticketing/audit skills (bundled with PaiR)
 
-The ticketing workflow (and the orchestration roles) invoke slash commands: `/pair-create-issue`, `/pair-run-issue`, `/pair-close-issue`, `/pair-review-to-commit` (ticketing), plus `/pair-audit` (the solo quality rail used by the orchestration review role).
+The ticketing workflow invokes slash commands: `/pair-create-issue`, `/pair-run-issue`, `/pair-close-issue`, `/pair-review-to-commit` (ticketing), plus `/pair-audit` (the quality audit), `/pair-crew` (run a crew) and `/pair-continue-task` (save the state of a long session to a file, to resume it in a fresh context).
 
 **PaiR ships these skills embedded.** On every open it writes them to `.pair/commands/pair-*.md` (+ their helper scripts to `.pair/scripts/*.py`), versioned with the binary. To make them invocable as `/pair-*` slash commands, copy them ONE-TIME into the global Claude Code commands, exactly like installing the hooks:
 
 1. Copy `.pair/commands/pair-*.md` → `~/.claude/commands/` **only if the target does not already exist** (a machine that has the external `claude-code-toolkit` already provides equivalents — never overwrite them).
-2. Copy `.pair/scripts/*.py` → `~/.claude/scripts/` (same "only if absent" rule) and `chmod +x` them.
+2. Copy `.pair/scripts/*.py` → `~/.claude/scripts/` (same "only if absent" rule) and `chmod +x` them. Inside the project, `.pair/scripts/<name>` is always current: the app refreshes it at every open.
 3. Do this **with the user's consent**, one-time. Each skill carries a `pair-version` frontmatter: if it differs from the running app version, offer to re-copy (drift on a version bump).
+
+#### After an update
+
+The app refreshes by itself, at every open and without asking: `.pair/` (this file, `commands/`, `scripts/`, `crew-contract.md`), `~/.pair/hooks/` and the plugin in `~/.pair/mods/`. It never writes under `~/.claude`. So at session start, look for the gap and offer it to the user, one item at a time:
+
+- **Hooks**: `pair hook --install --claude --global --dry-run`. Every name after `Would add:` is new since the user's last install.
+- **Skills**: compare `pair-version` in `~/.claude/commands/pair-*.md` with the one in `.pair/commands/pair-*.md`. A different, older version: offer to re-copy.
+- **Scripts**: compare the `# pair-template:` line (the second line of the file) of `~/.claude/scripts/<name>` with `.pair/scripts/<name>`. An older stamp: offer to re-copy. No stamp: it is the user's own file or their toolkit's, leave it alone.
+
+Nothing is written under `~/.claude` before the user agrees.
 
 This keeps PaiR self-sufficient (the critical path works on a machine without the toolkit) while never clobbering a user's existing global commands.
 
@@ -158,7 +168,7 @@ pair journal "Done: added lastPushAt prop to JournalPanel — modified JournalPa
 
 A **crew** runs a project with several sessions without a fixed workflow: one **lead** session and **satellites** opened as needed. The user talks to the lead only.
 
-Started from the lead with `/pair-crew` (`start <goal>`, or `adopt` to turn running, cabled sessions into a crew). Each satellite receives a short contract by `--push action`, then works its tickets with `/pair-run-issue` as usual.
+Started from the lead with `/pair-crew` (`start <goal>`, or `adopt` to turn running, cabled sessions into a crew). The lead records it with `pair crew start` (no ticket needed) and closes it with `pair crew end` (see `crew` below). Each satellite receives a short contract by `--push action`, then works its tickets with `/pair-run-issue` as usual.
 
 If you received a crew contract, it overrides the default confirmations:
 - Questions go to the lead (`pair journal "…" --push attente --to "<lead>"`), never to the user.
@@ -166,7 +176,16 @@ If you received a crew contract, it overrides the default confirmations:
 - Never push, never ask about pushing: the user pushes.
 - Stay in your zone (your files, your test resources). Long-lived services belong to the lead.
 - When waiting or idle, end your message with an « En attente : » block (what, from whom, what next).
-- Context: at the end of a ticket above the crew threshold, run `/continue-task`, send « prête : <file> » to the lead and stop. The lead clears and resumes you.
+- Context: at the end of a ticket above the crew threshold, run `/pair-continue-task`, send « prête : <file> » to the lead and stop. The lead clears and resumes you.
+
+This list is a summary. The contract itself is a file: the app writes it to `.pair/crew-contract.md` at every open, and satellites of the same project re-read it at each turn. Nobody edits it (its source is the `/pair-crew` skill).
+
+Three tools a crew uses:
+- Commit with `python3 .pair/scripts/crew-commit.py -m "msg" path...`: it commits only the paths you list, even when other sessions have staged files. Run it with `--dry-run` first.
+- Hand a ticket over with an order through `--ticket <id>` (see `journal` below).
+- Show a ticket to the user with `pair open <id>` (see `open`).
+
+The model goes with the task: the lead runs on Sonnet, coders start on Haiku and ask the lead to move up on a hard task, the audit satellite runs on Sonnet, and a complex plan or the final review goes to an Opus satellite.
 
 ### When finishing work
 
@@ -283,6 +302,16 @@ Displays full issue detail including children, comments, labels, dependencies.
 pair show <id>
 pair show <id> --json
 ```
+
+### `open <id>` — Show an issue in the app
+
+`pair show` prints the issue in the terminal; `pair open` makes the app display it in its detail panel, as a click in the list would. Use it when the user should look at an issue (to check something, to review it).
+
+```bash
+pair open <id>
+```
+
+The issue is checked first: an unknown ID is an error and nothing is sent. The app must be running, otherwise the command fails at once with a message (no waiting). A ticket of another project makes the app switch to that project. The selected terminal tab does not move. Its confirmation message means the request was sent, not that the issue is already on screen.
 
 ### `create <title>` — Create a new issue
 
@@ -591,8 +620,8 @@ Recognise these intents (the user may phrase them in English, French, or any oth
 | "tell X to do …" / "have X run …" | `pair journal --push action "…" --to X` |
 | "tell everyone on project P …" | `pair journal --push info "…" --to P` |
 | "tell X and Y …" | `pair journal --push info "…" --to X --to Y` |
-| "hand a **job** to a session" (lead) | `pair journal --push action "…" --to "<session>" --task "short title"`: the title (80 characters) is what the crew view shows under that session while it works; a follow-up order without `--task` does not replace it |
-| "ask the **person** a question" (not another session) | `pair ask "…" [--option A --option B [--multiple]] [--context "1-3 lines: what you were doing"]`: shows in the Crew tab, with your session and ticket, the answer comes back as a message, do not wait in a loop; the answer `(sans objet)` (exact text) means the person has nothing to say |
+| "hand a **job** to a session" (lead) | `pair journal --push action "…" --to "<session>" --task "short title"`: the title (80 characters) is what the crew view shows under that session while it works; a follow-up order without `--task` does not replace it. Add `--ticket <id>` (sender in an active crew, one id) to move that ticket from open to in_progress with the order and attach it to the crew: it is the only way an order attaches a ticket, an id written in the text or in `--task` attaches nothing |
+| "ask the **person** a question" (not another session) | `pair ask "…" [--option A --option B [--multiple]] [--context "1-3 lines: what you were doing"] [--ticket <id>] [--replaces <n>]`: `--ticket` names the ticket the question is about (unknown id = error, nothing written), `--replaces <n>` rewords your own pending question #n (closes it, inherits its ticket; the person's Rephrase button asks you for it: rewrite `--context` first, keep the same number and order of choices); shows in the Crew tab, with your session and ticket, the answer comes back as a message, do not wait in a loop; the answer `(sans objet)` (exact text) means the person has nothing to say |
 | "message a project that has **no live session** / open one there and tell it …" | `pair journal --push info "…" --to P --auto-open` (creates **and** cables) |
 | "log that …" / "write in your journal that …" / "note that …" | `pair journal "…" --tags status` (no push) |
 | "tell the **network / remote** session X of peer Y …" / "send to X on Y …" | `pair journal --push info "…" --to X --peer Y` |
@@ -723,11 +752,27 @@ A session id also works.
 Scope: sessions running under tmux or herdr. A plain PTY session exists only in
 the running app and cannot be cabled from the CLI.
 
+### `crew` : record a crew (lead, members, tickets)
+
+The rules of a crew are in `.pair/crew-contract.md` and summarized in "Crew mode" above. This command only keeps the record.
+
+```bash
+pair crew start [--epic <id>]   # The current session starts a crew and leads it; no ticket needed
+pair crew show [<crewId>]       # Members and tickets (default: the current session's crew)
+pair crew list                  # Every crew of this app (the dev app and the installed app keep separate lists)
+pair crew end [<crewId>]        # The lead ends its crew; one that handled nothing is removed. With an id: also an orphan crew of this project (its lead is gone)
+pair crew role <session> <role>|--clear   # Work role of a satellite (planner, coder, auditor, reviewer, investigator); only the crew lead or the session that opened it. Also `pair session open <project> --role <role>`
+pair crew resume <crewId>       # Become the lead of an orphan crew (lead gone, crew still open). The session-start hook asks the person Resume or End and prints this command; never run it before the answer
+pair crew import [--dry-run] [--exclude <project>] [--end "<project>=YYYY-MM-DD HH:MM:SS"]   # Rebuild past crews from the journals, once per app (UTC, repeatable options)
+```
+
+A satellite joins when the lead cables it while its crew is active (`pair cable add "<session>"`, or a first `--push action` message). Tickets a member creates, comments, closes, moves or cites in a `--push action` order join the crew by themselves. One active crew per session: `start` refuses otherwise. `start`, `end` and `show` without an id need a PaiR session. `--json` on every subcommand.
+
 ### `session open` : open a new agent session (pair-1shw.2)
 
 ```bash
 pair session open my-frontend --json                    # → {"sessionId":"pty-…", …}
-pair session open my-frontend --message "You are the coder for pair-2cks…"
+pair session open my-frontend --message "You are working on pair-2cks…"
 ```
 
 Opens a **new** session in a project and prints its id (`--json` →
@@ -746,7 +791,7 @@ an agent is deliberate: never a silent side effect.
 
 ```bash
 pair session list                                         # live routable sessions (name, project, runtime)
-pair session close "test-suite-project coder"      # DETACH: the tmux/herdr session persists
+pair session close "test-suite-project 1"         # DETACH: the tmux/herdr session persists
 pair session close <id|name> --kill                       # KILL: destroy the tmux/herdr server too
 pair session kill <id|name>                               # alias for `close --kill`
 ```
@@ -756,8 +801,7 @@ path as the UI cross, so the sidebar and the cable graph refresh and the session
 cables are purged (no ghost edges). By default it **detaches** a tmux/herdr session
 (it persists and can be restored); `--kill` (or the `kill` alias) **destroys** the
 server. A PTY session is always fully closed (it can't persist). Closing the session
-that issues the command is refused. Use `--kill` to tear down every session an
-orchestration spawned when it reaches a terminal state.
+that issues the command is refused.
 
 **Do not confuse the three channels:**
 
@@ -769,42 +813,6 @@ orchestration spawned when it reaches a terminal state.
 
 Cabling does **not** start a conversation. It declares who may talk to whom;
 saying something still goes through `journal --push`.
-
-### `orchestrate` — Run a ticket through a role workflow (pair-1shw.6.2)
-
-```bash
-pair orchestrate start <id>               # spawn a project-manager session on the ticket
-pair orchestrate start <id> --mutate-initiator   # turn THIS session into the manager instead
-pair orchestrate status <id>              # current state, stepper, artifacts, pending gate
-pair orchestrate advance <id>             # move to the next workflow state
-pair orchestrate advance <id> --to <state>       # move to an explicit state
-pair orchestrate verdict <id> pass        # record the current step's verdict (or `fail`)
-pair orchestrate gate <id> approve        # approve the gate guarding the current state
-pair orchestrate stop <id>                # kill the orchestration's sessions, purge its log
-```
-
-An orchestration walks a ticket through roles (manager, coder, reviewer...), each
-role running in its own session, lazily spawned as the workflow advances. The state
-is rebuilt from a durable log, so `status` tells the truth rather than a guess, and
-it works with no app running.
-
-**Read `status` before acting.** It names the current state, the artifacts produced
-so far, and the gate requirements still missing. A bare `advance` cannot cross a
-gated state, so guessing wastes a round trip.
-
-`start` spawns a FRESH manager session and merely cables the initiating session to
-it: your session is never taken over. Use `--mutate-initiator` only from a session
-opened specifically to orchestrate.
-
-**The engine never touches git.** No commit, no remote update, no issue closing --
-not even when the merge gate is approved. Approving that gate is a GO-AHEAD, nothing
-more: at finalisation the coder aligns docs and maps but commits nothing. The human
-finalises from the supervisor session, through the review-to-commit skill. An agent
-that commits on its own breaks this contract.
-
-Each `verdict` produces the artifact its step expects (a diff at implementation, a
-test report at test, a review at review), which is what lets the merge gate be
-satisfied. `stop` tears the whole thing down, sessions included.
 
 ### `catalog` — Global project catalog
 
@@ -933,6 +941,15 @@ To connect Claude Code to PaiR, add hooks to `~/.claude/settings.json` (global) 
   }
 }
 ```
+
+`pair hook --install --claude` also writes two entries for PaiR's own scripts, with the absolute path of `~/.pair/hooks/` (here `<home>`):
+
+```json
+"UserPromptSubmit": [{ "matcher": "", "hooks": [{ "type": "command", "command": "python3 '<home>/.pair/hooks/inject-pair-messaging.py' || true" }] }],
+"PreToolUse": [{ "matcher": "Bash", "hooks": [{ "type": "command", "command": "bash '<home>/.pair/hooks/guard-pair.sh'" }] }]
+```
+
+The reminder ends with `|| true` so that a missing script never blocks a prompt. The guard has none on purpose: when it refuses a command, it exits with 2 and the command does not run. Inside a session opened by PaiR the plugin already guards, so the script exits quietly there.
 
 **Important:**
 

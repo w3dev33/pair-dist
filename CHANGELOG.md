@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.50.0] - 2026-11-10
+
+### Features
+- **Project files view** - a central Files view (button after the list button) browses the project: virtualized collapsible tree following the disk (Rust watcher, `.pair` shown), filter field, quick open `Cmd/Ctrl+T` with fuzzy search, content search, tabs per project. Viewers for code (CodeMirror 6, multi-cursor, Pug), markdown (inline HTML, anchors, relative images), HTML preview, images, PDF (printable), video, PSD/PSB composite, binary card. Text files can be edited and saved (refused under `.git`), with auto-reload of the open file, a conflict banner when it changes under an edit, and a diff on reload.
+- **Crew supervision** - crews read by session id (cost per conversation from entry, frozen total at close, live reading with `pair usage snapshot --live`), work role per session (`pair session open --role`, `pair crew role`, badge in tab and list), project hierarchy with numbered crews, declared epic (`pair journal --crew-epic`) and progress, model per session, tickets sorted in progress / mentioned / closed with a "To do" switch per crew, stopped crews, all-projects scope, orphan crew question (resume or close) at session start, `pair crew start/end/show/list/import/resume`, `--ticket` on an order moves the ticket to in progress and attaches it to the crew.
+- **Lead dialogue** - write zone to leads in the Crew tab, pulsing outline while a question is listed, "View ticket" and "Rephrase" buttons on each question (`pair ask --ticket`, `--replaces`), a comma is allowed in an option.
+- **Terminal tabs** - hover action box, state band (pin, share, workspace), crew tabs grouped lead first with a shared tint and a "lead" badge, lead pinned once at appearance, a satellite opened by an agent no longer steals focus, height handle above the Terminal title.
+- **CLI** - `pair open <id>` opens a ticket in the detail panel, `pair rules`, forced close of a satellite by its lead (`pair session close --force`, `session prune`), `pair hook --install --claude` also writes the prompt reminder and command guard.
+- **Embedded skills and scripts** - `/pair-continue-task` becomes the 7th embedded skill, `crew-commit.py`, `crew-stats.py` and `check-memory-size.py` shipped with the app, the crew contract is written to `.pair/crew-contract.md` at project open (single source: the `pair-crew` skill), rules loaded on demand per command.
+- **Print** - print a PDF from the preview.
+
+### Bug Fixes
+- **Exit and shutdown** - network lock, tmux commands and the goodbye are bounded, closing a direct PTY terminal also kills what its shell launched, the window cross opens a single exit box.
+- **Crews** - project paths normalized, a closed or vanished session leaves the crew by id, no more attachment by name, a ticket cited in text no longer joins a crew, "Pushed" requires the push after the closing, satellite registration replayed on an existing cable and model read by name as a fallback.
+- **Onboarding** - the Browse card shows at first launch, even with empty stats already loaded.
+- **Tracker** - the watcher loop is stopped, stale remote sessions purged at startup.
+- **Build** - `nuxt generate` and `vue-tsc` without warnings, `vue-router` aligned with Nuxt 4.6.4.
+
 ## [0.48.0] - 2026-11-05
 
 ### Features

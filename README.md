@@ -8,7 +8,7 @@ Your AI agents use the `pair` CLI to create, update and close issues while you w
 
 ## Why PaiR?
 
-AI-assisted development is moving fast. Multi-agent orchestration, autonomous task management, swarms of AI workers.
+AI-assisted development is moving fast. Autonomous task management, swarms of AI workers.
 The tools are impressive, but they're racing ahead of most developers' reality.
 
 I believe the transition to AI autonomy should be progressive. Today, most developers work **with** AI: pair programming, reviewing suggestions, steering decisions.
@@ -22,7 +22,6 @@ The name says it all: **PaiR**, the human and the AI working side by side.
 
 <p align="center">
   <a href="https://pair.w3dev.fr"><img src="assets/screenshot-list.png" width="49%" alt="PaiR: issue list and integrated terminals"></a>
-  <a href="https://pair.w3dev.fr"><img src="assets/screenshot-orchestration.png" width="49%" alt="PaiR: multi-agent orchestration"></a>
 </p>
 
 ## Installation
@@ -64,11 +63,7 @@ The `pair` CLI is bundled with the app and made available in your terminal durin
 - **Just ask**: "let session X know the API is ready" is enough, the agent picks the right command
 - **The graph** shows who is talking to whom, live
 - **Peers on your local network**: pair with other PaiR instances, exchange messages, and cable to their sessions with your approval for each incoming message
-
-### Multi-agent orchestration (experimental)
-- **A team on one issue**: a supervisor, a coder and an independent reviewer pass the work along
-- **PaiR orchestrates, not the agent**: each role works in a session you can watch and take over, and the merge waits for your validation
-- Still being designed, expect rough edges. macOS and Linux for now
+- **Crews**: one lead session drives its satellite sessions, and you talk only to the lead (see the crew view in the in-app help)
 
 ### Secure by default
 - Peers are identified by their pinned certificate, and repeated failed attempts are blocked
