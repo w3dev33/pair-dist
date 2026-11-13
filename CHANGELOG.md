@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.51.1] - 2026-11-13
+
+### Bug Fixes
+- **In-app update** - the download failed with "status: 302 Found" because GitHub now redirects release assets to `release-assets.githubusercontent.com`, missing from the allowlist. The host is accepted by exact comparison, as a redirect target only (https, no port, never a starting point), next to `objects.githubusercontent.com` (pair-nwqr). Installed 0.50.x and 0.51.0 cannot repair themselves: download 0.51.1 by hand from the website.
+
 ## [0.51.0] - 2026-11-13
 
 ### Features
