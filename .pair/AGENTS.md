@@ -1,4 +1,4 @@
-<!-- pair-template: 0.49.0-latest dev -->
+<!-- pair-template: 0.51.0 dev -->
 # AGENTS.md — PaiR
 
 This project uses `pair` for issue tracking. Issues are stored locally in SQLite (`.pair/pair.db`).
@@ -621,7 +621,7 @@ Recognise these intents (the user may phrase them in English, French, or any oth
 | "tell everyone on project P …" | `pair journal --push info "…" --to P` |
 | "tell X and Y …" | `pair journal --push info "…" --to X --to Y` |
 | "hand a **job** to a session" (lead) | `pair journal --push action "…" --to "<session>" --task "short title"`: the title (80 characters) is what the crew view shows under that session while it works; a follow-up order without `--task` does not replace it. Add `--ticket <id>` (sender in an active crew, one id) to move that ticket from open to in_progress with the order and attach it to the crew: it is the only way an order attaches a ticket, an id written in the text or in `--task` attaches nothing |
-| "ask the **person** a question" (not another session) | `pair ask "…" [--option A --option B [--multiple]] [--context "1-3 lines: what you were doing"] [--ticket <id>] [--replaces <n>]`: `--ticket` names the ticket the question is about (unknown id = error, nothing written), `--replaces <n>` rewords your own pending question #n (closes it, inherits its ticket; the person's Rephrase button asks you for it: rewrite `--context` first, keep the same number and order of choices); shows in the Crew tab, with your session and ticket, the answer comes back as a message, do not wait in a loop; the answer `(sans objet)` (exact text) means the person has nothing to say |
+| "ask the **person** a question" (not another session; a crew satellite never uses `pair ask`, the CLI refuses it: it asks its lead with `pair journal "…" --push attente --to "<lead>"`) | `pair ask "…" [--option A --option B [--multiple]] [--context "1-3 lines: what you were doing"] [--ticket <id>] [--replaces <n>]`: `--ticket` names the ticket the question is about (unknown id = error, nothing written), `--replaces <n>` rewords your own pending question #n (closes it, inherits its ticket; the person's Rephrase button asks you for it: rewrite `--context` first, keep the same number and order of choices); shows in the Crew tab, with your session and ticket, the answer comes back as a message, do not wait in a loop; the answer `(sans objet)` (exact text) means the person has nothing to say |
 | "message a project that has **no live session** / open one there and tell it …" | `pair journal --push info "…" --to P --auto-open` (creates **and** cables) |
 | "log that …" / "write in your journal that …" / "note that …" | `pair journal "…" --tags status` (no push) |
 | "tell the **network / remote** session X of peer Y …" / "send to X on Y …" | `pair journal --push info "…" --to X --peer Y` |
@@ -759,6 +759,10 @@ The rules of a crew are in `.pair/crew-contract.md` and summarized in "Crew mode
 ```bash
 pair crew start [--epic <id>]   # The current session starts a crew and leads it; no ticket needed
 pair crew show [<crewId>]       # Members and tickets (default: the current session's crew)
+pair crew add <session>         # Lead: add an existing session (a cable or a message does not)
+pair crew release <session>     # Lead: free a session that is only cabled, not a member
+pair crew status [<crewId>]     # One line per live session: role, model, idle time, ticket, request, context, cost (exact state only in the Crew panel)
+pair crew status [<crewId>] --tickets   # One line per ticket the crew follows: status, the six steps with their times, audit passes (--json for a script)
 pair crew list                  # Every crew of this app (the dev app and the installed app keep separate lists)
 pair crew end [<crewId>]        # The lead ends its crew; one that handled nothing is removed. With an id: also an orphan crew of this project (its lead is gone)
 pair crew role <session> <role>|--clear   # Work role of a satellite (planner, coder, auditor, reviewer, investigator); only the crew lead or the session that opened it. Also `pair session open <project> --role <role>`
@@ -766,7 +770,7 @@ pair crew resume <crewId>       # Become the lead of an orphan crew (lead gone, 
 pair crew import [--dry-run] [--exclude <project>] [--end "<project>=YYYY-MM-DD HH:MM:SS"]   # Rebuild past crews from the journals, once per app (UTC, repeatable options)
 ```
 
-A satellite joins when the lead cables it while its crew is active (`pair cable add "<session>"`, or a first `--push action` message). Tickets a member creates, comments, closes, moves or cites in a `--push action` order join the crew by themselves. One active crew per session: `start` refuses otherwise. `start`, `end` and `show` without an id need a PaiR session. `--json` on every subcommand.
+A satellite joins only when the lead opens it (`pair session open`) or adds it (`pair crew add <session> [--role R]`, which lays the cable too); a cable or a message enrols nobody. `pair crew release <session>` frees one enrolled by mistake. Tickets a member creates, comments, closes, moves or cites in a `--push action` order join the crew by themselves. One active crew per session: `start` refuses otherwise. `start`, `end` and `show` without an id need a PaiR session. `--json` on every subcommand.
 
 ### `session open` : open a new agent session (pair-1shw.2)
 

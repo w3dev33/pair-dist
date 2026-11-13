@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.51.0] - 2026-11-13
+
+### Features
+- **First-launch checklist** - leaving the welcome screen shows a 3-step checklist with the terminal open and a session created automatically; the "Open a terminal" button on step 3; guidance limited to the natural onboarding (pair-9drv). Step 4 presents the 7 embedded skills instead of "Start tracking" (pair-4z7g.23).
+- **Crew tab, terminal left panel** - tabs in a column, numbered crew sections (role first, ticket once), SESSIONS section above the crews, joined crew border, "New crew" button in the + menu and on the empty screen, Layout menu, no more 8-tab limit per project (pair-bj5q, pair-9e5t, pair-zmyh, pair-slk5.5).
+- **Terminal mounting** - capped mounting with pinned panes kept and visible panes mandatory, session signals outside xterm, workspace mounting on chosen panes (pair-slk5).
+- **Terminal** - Ctrl+click on links (pair-9brt); text follows the application zoom (pair-437v); tooltips and menus under the global zoom (pair-ob0l).
+- **Crew supervision** - a member joins by open or add from the lead, never by a cable (`pair crew add`, `release`, `joined_via`); `pair crew status` (live state of the crew sessions, `--tickets`); `pair crew pause` / `--off`; sources queried with a reading at send time (`crew_sources`); summary of a finished crew in the panel (one line per session, limits with their age); status line reading (`pair session stats`) and session snapshots; state and last request columns with sender and "awaits a verdict / a delivery" badge; lead row shows its last order; blue dot for an `in_progress` ticket; idle alert for a session that was sent a request; PLAN column ticked as soon as a later step is reached; board refreshed at audit verdict, commit and push (pair-fxsv, pair-y23n, pair-4z7g.16).
+- **`pair ask` refused to an enrolled satellite**, guard in blocking mode, crew reminder by role (pair-fxsv.17.1).
+- **CLI** - short ticket ids (`x3ng`, `fxsv.1`) accepted by every command taking a ticket (pair-fxsv.8); `session open` resumes the wait without duplicate; remote commands `terminal-new-crew`, `terminal-switch @<sid>`, `crew-answer` (pair-4z7g).
+- **Ticket created toast** with a "View ticket" button (pair-o61c).
+- **crew-commit.py** - `--require-ticket`, refusal of relative imports to untracked files (pair-fxsv.4, pair-fxsv.5).
+
+### Bug Fixes
+- **crew-commit.py** - a multi-file patch applies each text once, no crash on a non-UTF-8 source, binaries no longer read for import detection (pair-fxsv.3, pair-4z7g.27, pair-4z7g.26).
+- **Crews** - the commit and the push attach to the session's ticket; a cable no longer makes a crew, membership comes from enrolment only; a finished crew has no lead; a reading at another session's epoch is refused (no ghost conversation); a session outside any crew shows only its current work; an "audit before commit" instruction is no longer taken for an audit request; satellite alert, sound and composer follow enrolled members; a model used between two snapshots stays in the summary.
+- **CLI** - under `--json`, delivery lines of a push go to stderr (`crew pause`, `journal --push`); stale pending reading of `session open` removed.
+- **Terminal** - guard on `term` after the tmux rebound at unmount, visible feedback when session creation is refused from the + menu, crew panel re-read at close, `terminalDetached` declared before `canShowWorkspace`, crew title truncated only when short of room.
+- **Docs and CLI examples** - generic examples instead of another project (pair-78ej).
+- **Dev tooling** (not in the public changelog) - crew demo script and screenshot helpers (`demo-crew.py`, `_capture_utils.py`, showcase list), screenshot copy handles the `-latest` suffix (pair-4z7g.25), scenario script for crews in the dev app (pair-fxsv.15).
+
 ## [0.50.0] - 2026-11-10
 
 ### Features
