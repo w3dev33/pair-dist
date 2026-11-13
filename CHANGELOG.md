@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.52.0] - 2026-11-13
+
+### Features
+- **Emoji reactions** - a received message gets a reaction button on its bubble; reactions show as pills under received and sent bubbles. Allowlist of 8 emojis (including 👎 and ❌), validated on receive, stored with `json_set` (no migration). A reaction travels silently (`peer_send_reaction`, event `peer-reaction-received`: no bubble, no history), and reacting marks the message read. A peer on an older version sees a "👍" bubble (pair-pykn).
+
+### Bug Fixes
+- **Clipboard** - copying an image from the viewer, or a message bubble holding only image(s), now puts the real image in the clipboard (the first one if several), so it pastes with Ctrl+V in Claude Code. Fallback: the PNG path, written in a private cache folder (random name, 0700/0600, purged) (pair-qdl1).
+- **Terminal** - when a tmux session fails to open after an update, the error explains the stale tmux server (pair-5gr4).
+- **Reactions** - the reaction menu opened off screen (Tooltip/DropdownMenu structure shared with the other menus); a send failure goes through `useNotification` and shows on screen (pair-pykn).
+- **Tests and docs** - three peer attachment tests, `createSessionDetailed` (pair-qdl1, pair-5gr4); Reactions section of the network guide EN and FR, codebase and reactivity maps aligned (pair-pykn).
+
 ## [0.51.1] - 2026-11-13
 
 ### Bug Fixes
