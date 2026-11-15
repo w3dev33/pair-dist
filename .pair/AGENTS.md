@@ -1,4 +1,4 @@
-<!-- pair-template: 0.52.0 dev -->
+<!-- pair-template: 0.52.0-latest dev -->
 # AGENTS.md — PaiR
 
 This project uses `pair` for issue tracking. Issues are stored locally in SQLite (`.pair/pair.db`).
@@ -168,7 +168,7 @@ pair journal "Done: added lastPushAt prop to JournalPanel — modified JournalPa
 
 A **crew** runs a project with several sessions without a fixed workflow: one **lead** session and **satellites** opened as needed. The user talks to the lead only.
 
-Started from the lead with `/pair-crew` (`start <goal>`, or `adopt` to turn running, cabled sessions into a crew). The lead records it with `pair crew start` (no ticket needed) and closes it with `pair crew end` (see `crew` below). Each satellite receives a short contract by `--push action`, then works its tickets with `/pair-run-issue` as usual.
+Started from the lead with `/pair-crew start <goal>`, in a session opened for the crew (the "New crew" entry of the app, or `pair crew new`). The lead records it with `pair crew start` (no ticket needed) and closes it with `pair crew end` (see `crew` below). Each satellite receives a short contract by `--push action`, then works its tickets with `/pair-run-issue` as usual.
 
 If you received a crew contract, it overrides the default confirmations:
 - Questions go to the lead (`pair journal "…" --push attente --to "<lead>"`), never to the user.
@@ -181,7 +181,7 @@ If you received a crew contract, it overrides the default confirmations:
 This list is a summary. The contract itself is a file: the app writes it to `.pair/crew-contract.md` at every open, and satellites of the same project re-read it at each turn. Nobody edits it (its source is the `/pair-crew` skill).
 
 Three tools a crew uses:
-- Commit with `python3 .pair/scripts/crew-commit.py -m "msg" path...`: it commits only the paths you list, even when other sessions have staged files. Run it with `--dry-run` first.
+- Commit with `python3 .pair/scripts/crew-commit.py -m "msg" path...`: it commits only the paths you list, even when other sessions have staged files. Run it with `--dry-run` first. The message must name the ticket (refused otherwise; `--no-ticket` only when the project's rules forbid naming the tracker in commits). It runs the project's `pre-commit` and `commit-msg` hooks: a hook that refuses is fixed, never bypassed.
 - Hand a ticket over with an order through `--ticket <id>` (see `journal` below).
 - Show a ticket to the user with `pair open <id>` (see `open`).
 
@@ -270,8 +270,9 @@ Supported keys:
 | Key | Default | Description |
 |-----|---------|-------------|
 | `tracker.branch` | `pair-tracker` | Name of the orphan branch hosting `.pair/` content. Set this **before** pushing the orphan branch for the first time so the right branch is created. Useful when several contributors will push their tracker on the same repo — each user can keep their tracker on a personal branch (`pair-tracker-<username>`) without colliding. |
+| `disk.min_free_gb` | `10` | Free-space threshold in GB (a number greater than 0). At the `startup` of a session, the SessionStart hook warns the agent when the project's volume has less free space than this. |
 
-Validation: branch names must match `^[A-Za-z0-9._/-]+$`, no leading `-` or `/`, no `..`, no `//`, no spaces. Empty values are rejected (use `unset` to revert).
+Validation of `tracker.branch`: branch names must match `^[A-Za-z0-9._/-]+$`, no leading `-` or `/`, no `..`, no `//`, no spaces. Empty values are rejected (use `unset` to revert).
 
 If a remote `origin` is configured when the tracker branch is created and the resolved branch is still the default, PaiR logs a hint with the suggested personalized name (`pair-tracker-<owner>` parsed from the remote URL).
 
@@ -596,7 +597,7 @@ pair journal --export                   # Export to .pair/journal.jsonl
 
 The journal is **auto-populated** on every `pair create`, `pair close`, `pair comments add`, `pair update` (status changes → `status_changed`), `pair attach` (`attachment_added`), and `pair detach` (`attachment_removed`). Manual entries are for decisions, milestones, and notes.
 
-**Cross-session push** (`--push`): delivers the journal entry in real-time to a **cabled** recipient (named with `--to`) via tmux send-keys. Types: `info` (FYI), `attente` (waiting for the recipient), `action` (instruction to act). `--to` is required; a recipient that isn't cabled yet is cabled on the fly. A push prints a message id and only proves the text was DEPOSITED; `pair inbox --status <id>` tells whether the recipient READ it (receipt written by the PaiR plugin; an agent without the plugin never acknowledges). Without `--push`, the entry is written to the journal only. Cables are created with `pair cable add` or by dragging sessions together in the graph view. The delivered line is wrapped with **your session** as sender (`<pair-message from="<your-session>" level="<type>">…</pair-message>`) so the recipient can answer you precisely — see "Receiving a push" below for the reply flow.
+**Cross-session push** (`--push`): delivers the journal entry in real-time to a **cabled** recipient (named with `--to`) via tmux send-keys. Types: `info` (FYI), `attente` (waiting for the recipient), `action` (instruction to act). `--to` is required; a recipient that isn't cabled yet is cabled on the fly. A push prints a message id and only proves the text was DEPOSITED; `pair inbox --status <id>` tells whether the recipient READ it (receipt written by the PaiR plugin; an agent without the plugin never acknowledges). `pair journal --revoke <entry number|message id>` takes back a message you sent that is still unread (removed from the inbox, never delivered); already read, it fails and says so: a second message never cancels the first, revoke it then give the order again once. Without `--push`, the entry is written to the journal only. Cables are created with `pair cable add` or by dragging sessions together in the graph view. The delivered line is wrapped with **your session** as sender (`<pair-message from="<your-session>" level="<type>">…</pair-message>`) so the recipient can answer you precisely — see "Receiving a push" below for the reply flow.
 
 After reading another project's journal (`--from`), the next manual write is automatically tagged with `reply-to:<project>:<id>` to trace cross-project exchanges.
 
@@ -757,18 +758,27 @@ the running app and cannot be cabled from the CLI.
 The rules of a crew are in `.pair/crew-contract.md` and summarized in "Crew mode" above. This command only keeps the record.
 
 ```bash
-pair crew start [--epic <id>]   # The current session starts a crew and leads it; no ticket needed
+pair crew new [--message "..."]   # Ask the app to open the session that will lead a crew (Claude on the lead model, then `/pair-crew start`); the way for a loaded session to hand over: `--message "Resume: read <file>"`
+pair crew start [--epic <id>]   # The current session starts a crew and leads it; no ticket needed. Refused outside a session opened for a crew (New crew entry, or `pair crew new`); prints the version of the contract
 pair crew show [<crewId>]       # Members and tickets (default: the current session's crew)
 pair crew add <session>         # Lead: add an existing session (a cable or a message does not)
 pair crew release <session>     # Lead: free a session that is only cabled, not a member
 pair crew status [<crewId>]     # One line per live session: role, model, idle time, ticket, request, context, cost (exact state only in the Crew panel)
 pair crew status [<crewId>] --tickets   # One line per ticket the crew follows: status, the six steps with their times, audit passes (--json for a script)
+pair crew verdict <id> PASS|FAIL ["summary"] [--report <file>]   # Member: record the audit verdict of a ticket (`crew:audit` entry `Audit <id> : PASS|FAIL`, read by the Audited column) and send it to the lead
+pair crew exception <id> "<reason>"   # Member: record an exception to the audit cycle (who decided, finding, control replayed); never read as a verdict, sent to the lead
+pair crew relay request <satellite> --file <file> | cancel   # Lead: record (or cancel) the ONE relay request of the crew; write the resume file first
+pair crew relay run             # Named satellite: carry out the relay (checks the request, the lead at rest, its input line empty; then /clear, wait for 0 %, resume order). Never type into the lead's session yourself
 pair crew list                  # Every crew of this app (the dev app and the installed app keep separate lists)
-pair crew end [<crewId>]        # The lead ends its crew; one that handled nothing is removed. With an id: also an orphan crew of this project (its lead is gone)
+pair crew end [<crewId>]        # Lead: a crew ends only on the person's decision. This prints the inventory (tickets in progress, satellites alive, questions without an answer, tickets created during the crew and not closed), puts the end question to the person and is REFUSED; wait for the answer. With an id: an orphan crew of this project (its lead is gone), ended on the answer to the orphan question
+pair crew end --decision <n>    # Lead: end the crew once the person answered "Terminer" to end question <n> in the app (never answer it yourself: a CLI answer does not count). Closes the satellites still alive first, refuses while one is left; a crew that handled nothing is removed
 pair crew role <session> <role>|--clear   # Work role of a satellite (planner, coder, auditor, reviewer, investigator); only the crew lead or the session that opened it. Also `pair session open <project> --role <role>`
-pair crew resume <crewId>       # Become the lead of an orphan crew (lead gone, crew still open). The session-start hook asks the person Resume or End and prints this command; never run it before the answer
+pair crew resume <crewId>       # Become the lead of an orphan crew (lead gone or crew paused, crew still open). Lifts the pause and prints the resume files recorded at the pause, the lead's first. The session-start hook asks the person Resume or End and prints this command; never run it before the answer
+pair crew pause --close         # Lead: the way to restart PaiR. The app asks every member, the lead included, for its resume file, waits for the `ready: <file>` announcements (5 minutes at most), records the files, then closes every session. The lead records its own file with `pair journal "ready: <file>"`
 pair crew import [--dry-run] [--exclude <project>] [--end "<project>=YYYY-MM-DD HH:MM:SS"]   # Rebuild past crews from the journals, once per app (UTC, repeatable options)
 ```
+
+A text the person types in a satellite's terminal never reaches the satellite: the prompt hook stops it and sends it as typed to the lead (`info` message naming the satellite, journal tag `crew:intercept`). Lead: it is the person's own words, sent to the wrong session; decide whether it matters and who handles it, never bounce it back blindly. Messages delivered by PaiR, `/` commands and the opening message of `pair session open --message` still enter the satellite.
 
 A satellite joins only when the lead opens it (`pair session open`) or adds it (`pair crew add <session> [--role R]`, which lays the cable too); a cable or a message enrols nobody. `pair crew release <session>` frees one enrolled by mistake. Tickets a member creates, comments, closes, moves or cites in a `--push action` order join the crew by themselves. One active crew per session: `start` refuses otherwise. `start`, `end` and `show` without an id need a PaiR session. `--json` on every subcommand.
 
@@ -798,6 +808,7 @@ pair session list                                         # live routable sessio
 pair session close "test-suite-project 1"         # DETACH: the tmux/herdr session persists
 pair session close <id|name> --kill                       # KILL: destroy the tmux/herdr server too
 pair session kill <id|name>                               # alias for `close --kill`
+pair session close <satellite> [--without-resume]         # Crew satellite: always destroyed and out of the crew (lead only). Refused when it has a ticket in progress and announced no "ready: <file>" since its last order, unless --without-resume
 ```
 
 `session close` is the scriptable inverse of `session open`. It runs the same close

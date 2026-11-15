@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.53.0] - 2026-11-15
+
+### Features
+- **Crew lifecycle** - a crew starts in a session opened for it (`pair crew new`), with the contract version shown (pair-ulfb.1). It ends only on the user's decision, with an inventory of what is left (pair-ulfb.8). Closing the lead ends or pauses the crew, sessions closed, resume by a fresh session (pair-ulfb.7); closing an enrolled satellite always destroys it, and is refused when the resume file is missing (pair-ulfb.3).
+- **Lead relay** - `pair crew relay request`, `run` and `cancel`: the lead's state is checked at the moment of acting (pair-ulfb.5). The lead gets the context reminder at 50 % and re-reads the real state after `/clear` (pair-ulfb.4). A satellite gets one reminder per upward crossing of the threshold (pair-w594).
+- **User input in a satellite** - text typed by the user in a satellite is stopped and passed on to the lead (pair-ulfb.6).
+- **Messaging** - `pair journal --revoke` takes back a message still unread from the recipient's inbox (pair-ulfb.5).
+- **Audit verdicts** - `pair crew verdict` and `pair crew exception` record the outcome of an audit and of a one-line fix (pair-wxbk).
+- **crew-commit.py** - `--check` mode run before the audit request: explanatory comments added, existing blocks seen, `--gone <symbol>` finds remaining symbols, controls declared in `.pair/crew-checks.json`, i18n keys added or missing in a language; neutral to `diff.interHunkContext`, `-diff` attributes and `GIT_DIFF_OPTS` (pair-hpen.1, pair-hpen.2). The ticket is required by default and the project's git hooks are played (pair-ulfb.2).
+- **Session** - low disk space warning at session start, threshold `disk.min_free_gb`, 10 GB by default (pair-el8l).
+- **Crew view** - `pair crew start` announces the crew to the app (pair-x6dw); the button for stopped crews shows even with no live session (pair-4g1j).
+
+### Bug Fixes
+- **CLI** - the target project of `pair journal` comes from the session before the working directory, an explicit `-C` still wins (pair-uevj).
+- **Crews** - an audit entry without verdict no longer unticks a PASS (pair-wxbk); `crew end` requires a decision for any caller and `crew resume` requires the "new crew" mark (pair-ulfb.14).
+- **Crew view** - step column names visible in the section outside a crew (pair-a311).
+
+### Performance
+- **Crew view** - mounting reduced to the display of stopped crews (pair-hxjw).
+
+### Docs and tooling
+- In-app docs: `adopt` removed from the crew docs, knowledge-base schema redone from the delivered flow (pair-ulfb.10). Crew flow now tested through the CLI, `crew-scenario.py` removed (pair-ulfb.11). `build-project.py` ships with `--strict-warnings`. Embedded skills resynchronised with the toolkit.
+
 ## [0.52.0] - 2026-11-13
 
 ### Features
