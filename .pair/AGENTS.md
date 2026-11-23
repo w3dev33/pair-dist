@@ -1,4 +1,4 @@
-<!-- pair-template: 0.52.0-latest dev -->
+<!-- pair-template: 0.54.0-latest dev -->
 # AGENTS.md — PaiR
 
 This project uses `pair` for issue tracking. Issues are stored locally in SQLite (`.pair/pair.db`).

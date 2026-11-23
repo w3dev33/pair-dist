@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.55.0] - 2026-11-23
+
+### Features
+- **Dev servers** - `pair dev start|stop|restart|status` on a PTY session, DEV badge with status dot and action menu, launchers in the project settings, Terminal | Preview selector, deferred shutdown countdown, free fields applied at once and executable fields (command, stop command, dir, preset) only proposed then approved by the user through a review window, by fingerprint (pair-lxps, pair-lxps.1).
+- **Native web preview** - macOS child WebView for the preview, overlay detection, self-signed https accepted for localhost and 127.0.0.1, iframe elsewhere.
+- **Crew resume** - "Crews to resume" window, resume and close buttons on orphan crews, `pair crew resume` pushes `crew:roles`.
+- **Crew supervision** - global pause and resume buttons, crew round (cyclic check, settings block), crew first in the session list, origin chip for a session opened by another project's crew.
+- **Ticket and crew attachments** - single table of attachable types (text, data, HTML, SVG, code, up to 8 MB), paste or attach files in the crew input, `--file` on `pair journal` and `pair ask` with a file card in the Crew tab.
+- **Watch modules** - registry, scheduler, digest delivery, `pair module`, GitLab merge requests, Mattermost (direct messages, unread mode), multiple polling ranges, settings per project.
+- **Contextual help** - F1 and help buttons open the matching doc anchor.
+- **Footer** - Claude RL5h and RL7d quotas per agent.
+- **Misc** - paste an image or file into the ticket creation form, HEIC/HEIF/AVIF/BMP/TIFF accepted, wheel zoom in the image preview, "Collapse all / Expand all" in the files panel, question choice reset button, context reminder threshold 42 % by default.
+
+### Bug Fixes
+- **Security** - the socket and the file bus accept only an allowlist of actions (pair-7gu2); `pair journal --resolve` no longer lets a session answer its own question (pair-4bz3); launcher validation hardened with a shared deceptive-character module (pair-vjkv).
+- **Dev servers** - readiness detection by local address, foreground script read as running, Rust launcher without preview side, PATH with `~/.cargo/bin` for Rust launchers, dev sessions not shared on the network.
+- **Crews** - resume file keeps the role recorded at pause, ticket requests expire when the ticket is closed, `pair crew end` from the CLI pushes `crew:roles`, hardened file cards.
+- **Messaging and UI** - revocation reason of a delivered message, detail panel tab order, project logo margins, cable spacing, theme background of the preview.
+
+### Refactoring
+- Detached terminal window removed; the lead is no longer pinned when a crew opens.
+
+### Docs and tooling
+- In-app docs EN and FR for dev servers, preview, modules, attachments and CLI; maps updated; embedded skills resynchronised with the toolkit.
+
 ## [0.53.0] - 2026-11-15
 
 ### Features
